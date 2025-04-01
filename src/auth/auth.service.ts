@@ -1,5 +1,5 @@
 import { type SignInSchema, type SignUpSchema, signUpSchema } from "./schema";
-import { userService } from "../users/users.service";
+import { usersService } from "../users/users.service";
 import { compare } from "bcrypt";
 import { sign } from "jsonwebtoken";
 import { getEnv } from "../utils/env";
@@ -15,7 +15,7 @@ export const authService = {
       throw new Error(error?.message);
     }
 
-    return userService.create(signUpData);
+    return usersService.create(signUpData);
   },
 
   signIn: async (data: SignInSchema) => {
@@ -28,7 +28,7 @@ export const authService = {
       throw new Error(error?.message);
     }
     const { email, password } = signUpData;
-    const user = await userService.getByEmail(email);
+    const user = await usersService.getByEmail(email);
     if (!user) {
       throw new Error("User not found");
     }

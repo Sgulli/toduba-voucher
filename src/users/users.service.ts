@@ -9,11 +9,11 @@ import {
 } from "./schema";
 import { hashPassword } from "../utils/hash-password";
 
-interface IUserService extends IService<CreateUser, User> {
+interface IusersService extends IService<CreateUser, User> {
   getByEmail: (email: string) => Promise<User | null>;
 }
 
-export const userService: IUserService = {
+export const usersService: IusersService = {
   create: async (data: CreateUser) => {
     const {
       success,
@@ -24,7 +24,7 @@ export const userService: IUserService = {
       throw new Error(error.message);
     }
 
-    const existingUser = await userService.getByEmail(userData.email);
+    const existingUser = await usersService.getByEmail(userData.email);
     if (existingUser) {
       throw new Error("User already exists");
     }
@@ -63,7 +63,7 @@ export const userService: IUserService = {
       throw new Error(error.message);
     }
 
-    const existingUser = await userService.get(id);
+    const existingUser = await usersService.get(id);
     if (!existingUser) {
       throw new Error("User not found");
     }
@@ -78,7 +78,7 @@ export const userService: IUserService = {
     });
   },
   delete: async (id: string) => {
-    const existingUser = await userService.get(id);
+    const existingUser = await usersService.get(id);
     if (!existingUser) {
       throw new Error("User not found");
     }

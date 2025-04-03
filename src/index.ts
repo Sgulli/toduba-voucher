@@ -1,9 +1,8 @@
 import express from "express";
-import passport from "./config/passport.config";
+import { passport } from "./config";
 import api from "./api/v1/route";
 import { getEnv } from "./utils/env";
-import { notFoundHandler } from "./middlewares/route-not-found.middleware";
-import { errorHandler } from "./middlewares/error.middleware";
+import { notFoundHandler, errorHandler } from "./middlewares";
 import { MESSAGES } from "./utils/message";
 
 const { PORT, NODE_ENV } = getEnv();

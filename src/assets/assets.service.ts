@@ -1,4 +1,4 @@
-import { supabase } from "../config/supabase.config";
+import { supabase } from "../config";
 import { getEnv } from "../utils/env";
 
 export const assetsService = {

@@ -8,6 +8,8 @@ import {
   type UpdateUser,
 } from "./schema";
 import { hashPassword } from "../utils/hash-password";
+import { ConflictError, NotFoundError, ValidationError } from "../utils/errors";
+import { MESSAGES } from "../utils/message";
 
 interface IusersService extends IService<CreateUser, User> {
   getByEmail: (email: string) => Promise<User | null>;
@@ -21,12 +23,12 @@ export const usersService: IusersService = {
       error,
     } = await createUserSchema.safeParseAsync(data);
     if (!success) {
-      throw new Error(error.message);
+      throw new ValidationError(error.message);
     }
 
     const existingUser = await usersService.getByEmail(userData.email);
     if (existingUser) {
-      throw new Error("User already exists");
+      throw new ConflictError(MESSAGES.USER.ALREADY_EXISTS);
     }
 
     if (userData.password)
@@ -60,12 +62,12 @@ export const usersService: IusersService = {
     } = await updateUserSchema.safeParseAsync(data);
 
     if (!success) {
-      throw new Error(error.message);
+      throw new ValidationError(error.message);
     }
 
     const existingUser = await usersService.get(id);
     if (!existingUser) {
-      throw new Error("User not found");
+      throw new NotFoundError(MESSAGES.USER.NOT_FOUND);
     }
 
     if (userData.password)
@@ -80,7 +82,7 @@ export const usersService: IusersService = {
   delete: async (id: string) => {
     const existingUser = await usersService.get(id);
     if (!existingUser) {
-      throw new Error("User not found");
+      throw new NotFoundError(MESSAGES.USER.NOT_FOUND);
     }
     return prisma.user.delete({
       where: {

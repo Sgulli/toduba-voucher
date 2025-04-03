@@ -1,8 +1,13 @@
 import express from "express";
 import passport from "./config/passport.config";
+import api from "./api/v1/route";
 import { getEnv } from "./utils/env";
+import { notFoundHandler } from "./middlewares/route-not-found.middleware";
+import { errorHandler } from "./middlewares/error.middleware";
+import { MESSAGES } from "./utils/message";
+import { logRoutes } from "./utils/log-routes";
 
-const { PORT } = getEnv();
+const { PORT, NODE_ENV } = getEnv();
 
 const app = express();
 
@@ -11,14 +16,17 @@ app.use(express.urlencoded({ extended: false }));
 app.use(passport.initialize());
 
 app.get("/", (_, res) => {
-  res.jsonp({ message: "Server is up! :)" });
+  res.jsonp({ message: MESSAGES.SERVER.SERVER_INITIALIZED });
 });
+app.use(api);
 
-app.use((_, res) => {
-  res.status(404).jsonp({ message: "Not Found" });
-});
+app.use(errorHandler);
+app.use(notFoundHandler);
 
 app.listen(PORT, () => {
-  console.log(`[Server] Running on http://localhost:${PORT}`);
-  console.log(`[Environment] ${process.env.NODE_ENV}`);
+  if (NODE_ENV !== "production") {
+    console.log(`[Server] Running on http://localhost:${PORT}`);
+    console.log(`[Environment] ${process.env.NODE_ENV}`);
+    logRoutes(app);
+  }
 });

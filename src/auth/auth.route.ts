@@ -22,3 +22,5 @@ router.get(
     res.status(200).jsonp(user);
   }
 );
+
+export default router;

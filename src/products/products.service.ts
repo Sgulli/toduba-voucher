@@ -7,6 +7,8 @@ import {
   type CreateProduct,
   type UpdateProduct,
 } from "./schema";
+import { NotFoundError, ValidationError } from "../utils/errors";
+import { MESSAGES } from "../utils/message";
 
 export const productService: IService<CreateProduct, Product> = {
   create: async (data: CreateProduct) => {
@@ -17,7 +19,7 @@ export const productService: IService<CreateProduct, Product> = {
     } = await createProductSchema.safeParseAsync(data);
 
     if (!success) {
-      throw new Error(error.message);
+      throw new ValidationError(error.message);
     }
 
     const { prices, assets, ...rest } = productData;
@@ -50,11 +52,11 @@ export const productService: IService<CreateProduct, Product> = {
       error,
     } = await updateProductSchema.safeParseAsync(data);
     if (!success) {
-      throw new Error(error.message);
+      throw new ValidationError(error.message);
     }
     const existingProduct = await productService.get(id);
     if (!existingProduct) {
-      throw new Error("Product not found");
+      throw new NotFoundError(MESSAGES.PRODUCT.NOT_FOUND);
     }
     const { prices, assets, ...rest } = productData;
     return prisma.product.update({

@@ -1,31 +1,35 @@
 import express from "express";
 import { usersService } from "./users.service";
+import { HTTP_STATUS } from "../utils/http-status";
+import { API_PATHS } from "../utils/api-paths";
+import { Response } from "../utils/response";
 
 const router = express.Router();
 
-router.get("/", async (_, res) => {
+router.get(API_PATHS.USERS.GET_ALL, async (_, res) => {
   const users = await usersService.getAll();
-  res.status(200).jsonp(users);
+  const apiResponse = Response.success(users);
+  res.status(HTTP_STATUS.OK).jsonp(apiResponse);
 });
 
-router.get("/:id", async (req, res) => {
+router.get(API_PATHS.USERS.GET, async (req, res) => {
   const user = await usersService.get(req.params.id);
-  res.status(200).jsonp(user);
+  res.status(HTTP_STATUS.OK).jsonp(user);
 });
 
-router.post("/", async (req, res) => {
+router.post(API_PATHS.USERS.CREATE, async (req, res) => {
   const user = await usersService.create(req.body);
-  res.status(201).jsonp(user);
+  res.status(HTTP_STATUS.CREATED).jsonp(user);
 });
 
-router.patch("/:id", async (req, res) => {
+router.patch(API_PATHS.USERS.UPDATE, async (req, res) => {
   const user = await usersService.update(req.params.id, req.body);
-  res.status(200).jsonp(user);
+  res.status(HTTP_STATUS.OK).jsonp(user);
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete(API_PATHS.USERS.DELETE, async (req, res) => {
   const user = await usersService.delete(req.params.id);
-  res.status(200).jsonp(user);
+  res.status(HTTP_STATUS.OK).jsonp(user);
 });
 
 export default router;

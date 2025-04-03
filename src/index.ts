@@ -5,7 +5,6 @@ import { getEnv } from "./utils/env";
 import { notFoundHandler } from "./middlewares/route-not-found.middleware";
 import { errorHandler } from "./middlewares/error.middleware";
 import { MESSAGES } from "./utils/message";
-import { logRoutes } from "./utils/log-routes";
 
 const { PORT, NODE_ENV } = getEnv();
 
@@ -27,6 +26,5 @@ app.listen(PORT, () => {
   if (NODE_ENV !== "production") {
     console.log(`[Server] Running on http://localhost:${PORT}`);
     console.log(`[Environment] ${process.env.NODE_ENV}`);
-    logRoutes(app);
   }
 });

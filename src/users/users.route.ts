@@ -14,22 +14,26 @@ router.get(API_PATHS.USERS.GET_ALL, async (_, res) => {
 
 router.get(API_PATHS.USERS.GET, async (req, res) => {
   const user = await usersService.get(req.params.id);
-  res.status(HTTP_STATUS.OK).jsonp(user);
+  const apiResponse = Response.success(user);
+  res.status(HTTP_STATUS.OK).jsonp(apiResponse);
 });
 
 router.post(API_PATHS.USERS.CREATE, async (req, res) => {
   const user = await usersService.create(req.body);
-  res.status(HTTP_STATUS.CREATED).jsonp(user);
+  const apiResponse = Response.success(user);
+  res.status(HTTP_STATUS.CREATED).jsonp(apiResponse);
 });
 
 router.patch(API_PATHS.USERS.UPDATE, async (req, res) => {
   const user = await usersService.update(req.params.id, req.body);
-  res.status(HTTP_STATUS.OK).jsonp(user);
+  const apiResponse = Response.success(user);
+  res.status(HTTP_STATUS.OK).jsonp(apiResponse);
 });
 
 router.delete(API_PATHS.USERS.DELETE, async (req, res) => {
   const user = await usersService.delete(req.params.id);
-  res.status(HTTP_STATUS.OK).jsonp(user);
+  const apiResponse = Response.success(user);
+  res.status(HTTP_STATUS.OK).jsonp(apiResponse);
 });
 
 export default router;

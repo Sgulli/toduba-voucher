@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { ServerError } from "../types/server-error";
 import { MESSAGES } from "../utils/message";
+import { Response as ApiResponse } from "../utils/response";
 
 export const errorHandler = (
   err: ServerError,
@@ -9,8 +10,13 @@ export const errorHandler = (
   next: NextFunction
 ) => {
   if ("statusCode" in err) {
-    res.status(err.statusCode).json({ error: err.message });
-    next(err);
+    const apiError = ApiResponse.error(
+      err.message,
+      err.statusCode,
+      err.cause as string
+    );
+    res.status(err.statusCode).json(apiError);
+    next(apiError);
     return;
   }
 

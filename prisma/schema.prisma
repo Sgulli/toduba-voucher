@@ -36,7 +36,7 @@ model Product {
 
   prices    Price[]
   assets    Asset[]
-  orders    Order[]
+  lineItems LineItem[]
 
   @@map("products")
 }
@@ -44,9 +44,11 @@ model Product {
 model Price {
   id        String   @id @default(cuid())
   amount     Float
-  currency  ProductCurrency
-  product   Product  @relation(fields: [productId], references: [id])
-  productId String
+  currency  PriceCurrency
+  product   Product?  @relation(fields: [productId], references: [id])
+  productId String? @unique  
+  isActive Boolean @default(true)
+  isDefault Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -59,8 +61,8 @@ model Asset {
   name      String
   url       String
   alt      String
-  product   Product  @relation(fields: [productId], references: [id])
-  productId String
+  product   Product?  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String? @unique
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -70,15 +72,13 @@ model Asset {
 
 model Order {
   id        String   @id @default(cuid())
-  quantity  Int     @default(1)
-  totalAmount    Float
-  currency  String
   status   OrderStatus @default(NEW)
+  total     Float
+  currency  PriceCurrency @default(EUR)
   code    String
   user      User     @relation(fields: [userId], references: [id])
   userId    String
-  product   Product  @relation(fields: [productId], references: [id])
-  productId String
+  lineItems LineItem[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -86,9 +86,25 @@ model Order {
   @@map("orders")
 }
 
+model LineItem {
+  id        String   @id @default(cuid())
+  quantity  Int     @default(1)
+  amount    Float
+  currency  PriceCurrency
+  order      Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId    String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("line_items")
+}
+
 /* Enums  */
 
-enum ProductCurrency {
+enum PriceCurrency {
   EUR
   USD
 }

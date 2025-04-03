@@ -1,4 +1,4 @@
-import { Product } from "@prisma/client";
+import { Asset, Price, Product } from "@prisma/client";
 import { prisma } from "../db/prisma";
 import { IService } from "../interfaces/service.interface";
 import {
@@ -10,7 +10,13 @@ import {
 import { NotFoundError, ValidationError } from "../utils/errors";
 import { MESSAGES } from "../utils/message";
 
-export const productService: IService<CreateProduct, Product> = {
+export const productService: IService<
+  CreateProduct,
+  Product & {
+    prices?: Price[];
+    assets?: Asset[];
+  }
+> = {
   create: async (data: CreateProduct) => {
     const {
       success,
@@ -36,12 +42,21 @@ export const productService: IService<CreateProduct, Product> = {
     });
   },
   getAll: () => {
-    return prisma.product.findMany();
+    return prisma.product.findMany({
+      include: {
+        prices: true,
+        assets: true,
+      },
+    });
   },
-  get: (id: string) => {
+  get: async (id: string) => {
     return prisma.product.findUniqueOrThrow({
       where: {
         id,
+      },
+      include: {
+        prices: true,
+        assets: true,
       },
     });
   },

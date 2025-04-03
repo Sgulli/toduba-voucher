@@ -14,22 +14,26 @@ router.get(API_PATHS.PRODUCTS.GET_ALL, async (_, res) => {
 
 router.get(API_PATHS.PRODUCTS.GET, async (req, res) => {
   const product = await productService.get(req.params.id);
-  res.status(HTTP_STATUS.OK).jsonp(product);
+  const apiResponse = Response.success(product);
+  res.status(HTTP_STATUS.OK).jsonp(apiResponse);
 });
 
 router.post(API_PATHS.PRODUCTS.CREATE, async (req, res) => {
   const product = await productService.create(req.body);
-  res.status(HTTP_STATUS.CREATED).jsonp(product);
+  const apiResponse = Response.success(product);
+  res.status(HTTP_STATUS.CREATED).jsonp(apiResponse);
 });
 
 router.patch(API_PATHS.PRODUCTS.UPDATE, async (req, res) => {
   const product = await productService.update(req.params.id, req.body);
-  res.status(HTTP_STATUS.OK).jsonp(product);
+  const apiResponse = Response.success(product);
+  res.status(HTTP_STATUS.OK).jsonp(apiResponse);
 });
 
 router.delete(API_PATHS.PRODUCTS.DELETE, async (req, res) => {
   const product = await productService.delete(req.params.id);
-  res.status(HTTP_STATUS.OK).jsonp(product);
+  const apiResponse = Response.success(product);
+  res.status(HTTP_STATUS.OK).jsonp(apiResponse);
 });
 
 export default router;

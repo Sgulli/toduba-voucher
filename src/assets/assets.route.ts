@@ -12,3 +12,5 @@ router.get("/download/:path", async (req, res) => {
   const download = await assetsService.get(req.params.path);
   res.status(200).jsonp(download);
 });
+
+export default router;

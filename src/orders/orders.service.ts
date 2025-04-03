@@ -95,7 +95,7 @@ export const ordersService: IOrderService = {
       data: {
         ...rest,
         total: calculatedTotal,
-        currency: rest.currency ?? orderCurrency,
+        currency: rest.currency,
         userId,
         status: OrderStatus.NEW,
         code: ordersService.generateCode(),

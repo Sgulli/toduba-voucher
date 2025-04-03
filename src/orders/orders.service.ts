@@ -1,10 +1,10 @@
-import { Order, OrderStatus, PriceCurrency } from "@prisma/client";
+import { type Order, OrderStatus, PriceCurrency } from "@prisma/client";
 import { prisma } from "../db/prisma";
 import { IService } from "../interfaces/service.interface";
 import {
-  CreateOrder,
+  type CreateOrder,
+  type UpdateOrder,
   createOrderSchema,
-  UpdateOrder,
   updateOrderSchema,
 } from "./schema";
 import { NotFoundError, ValidationError } from "../utils/errors";

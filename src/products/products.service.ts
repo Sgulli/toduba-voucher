@@ -41,7 +41,7 @@ export const productService: IService<
       },
     });
   },
-  getAll: () => {
+  getAll: async () => {
     return prisma.product.findMany({
       include: {
         prices: true,

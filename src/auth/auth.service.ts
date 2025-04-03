@@ -45,7 +45,7 @@ export const authService = {
       email: user.email,
     };
 
-    const token = sign(payload, process.env.JWT_SECRET, {
+    const token = sign(payload, getEnv().JWT_SECRET, {
       expiresIn: getEnv().JWT_EXPIRES_IN,
     });
 

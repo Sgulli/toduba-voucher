@@ -1,3 +1,23 @@
 import Redis from "ioredis";
 
-export default new Redis();
+export const kv = new Redis();
+
+export default {
+  get: async <T>(key: string) => {
+    const value = await kv.get(key);
+    if (!value) return null;
+    return JSON.parse(value) as T;
+  },
+  set: async <T>(key: string, value: T, ttl?: number) => {
+    if (ttl) {
+      await kv.set(key, JSON.stringify(value), "EX", ttl);
+      return;
+    }
+    await kv.set(key, JSON.stringify(value));
+  },
+  del: async (key: string) => {
+    const ZERO_RESULT = 0;
+    const res = await kv.del(key);
+    return res > ZERO_RESULT;
+  },
+};

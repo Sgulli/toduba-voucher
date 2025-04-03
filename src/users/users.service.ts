@@ -10,6 +10,7 @@ import {
 import { hashPassword } from "../utils/hash-password";
 import { ConflictError, NotFoundError, ValidationError } from "../utils/errors";
 import { MESSAGES } from "../utils/message";
+import { kv } from "../config";
 
 interface IusersService extends IService<CreateUser, User> {
   getByEmail: (email: string) => Promise<User | null>;
@@ -38,6 +39,9 @@ export const usersService: IusersService = {
     });
   },
   getAll: async () => {
+    const cached = await kv.get<User[]>("users:list");
+    if (cached) return cached;
+
     return prisma.user.findMany();
   },
   get: (id: string) => {

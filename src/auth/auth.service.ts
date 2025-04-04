@@ -6,6 +6,16 @@ import { getEnv } from "../utils/env";
 import { NotFoundError, ValidationError } from "../utils/errors";
 import { MESSAGES } from "../utils/message";
 
+function generateToken<T extends object>(
+  payload: T,
+  secret: string,
+  expiresIn: number
+) {
+  return sign(payload, secret, {
+    expiresIn,
+  });
+}
+
 export const authService = {
   signUp: async (data: SignUpSchema) => {
     const {
@@ -17,7 +27,20 @@ export const authService = {
       throw new ValidationError(error.message);
     }
 
-    return usersService.create(signUpData);
+    const user = await usersService.create(signUpData);
+
+    const payload = {
+      id: user.id,
+      email: user.email,
+    };
+
+    const token = generateToken(
+      payload,
+      getEnv().JWT_SECRET,
+      getEnv().JWT_EXPIRES_IN
+    );
+
+    return { user, token };
   },
 
   signIn: async (data: SignInSchema) => {
@@ -45,9 +68,11 @@ export const authService = {
       email: user.email,
     };
 
-    const token = sign(payload, getEnv().JWT_SECRET, {
-      expiresIn: getEnv().JWT_EXPIRES_IN,
-    });
+    const token = generateToken(
+      payload,
+      getEnv().JWT_SECRET,
+      getEnv().JWT_EXPIRES_IN
+    );
 
     return { user, token };
   },

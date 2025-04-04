@@ -21,9 +21,7 @@ export const productService: IService<CreateProduct, ProductWithRelationships> =
         error,
       } = await createProductSchema.safeParseAsync(data);
 
-      if (!success) {
-        throw new ValidationError(error.message);
-      }
+      if (!success) throw new ValidationError(error.message);
 
       const { prices, assets, ...rest } = productData;
 
@@ -42,7 +40,9 @@ export const productService: IService<CreateProduct, ProductWithRelationships> =
       return product;
     },
     getAll: async () => {
-      const cached = await kv.get<ProductWithRelationships[]>("products:list");
+      const cached = await kv.get<ProductWithRelationships[]>(
+        kvKeyFn("products")
+      );
       if (cached && cached.length > 0) return cached;
       const products = await prisma.product.findMany({
         include: {

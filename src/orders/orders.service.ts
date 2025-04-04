@@ -1,6 +1,5 @@
-import { type Order, OrderStatus, PriceCurrency } from "@prisma/client";
+import { OrderStatus, PriceCurrency } from "@prisma/client";
 import { prisma } from "../db/prisma";
-import { IService } from "../interfaces/service.interface";
 import {
   type CreateOrder,
   type UpdateOrder,
@@ -11,10 +10,9 @@ import { NotFoundError, ValidationError } from "../utils/errors";
 import { productService } from "../products/products.service";
 import { usersService } from "../users/users.service";
 import { getRandomValues } from "crypto";
-interface IOrderService extends Omit<IService<CreateOrder, Order>, "update"> {
-  update: (id: string, data: UpdateOrder) => Promise<Order>;
-  generateCode: () => string;
-}
+import { pricesService } from "../prices/prices.service";
+import { MESSAGES } from "../utils/message";
+import { type IOrderService } from "./interfaces/order.interface";
 
 async function createLineItemsData(
   lineItems: CreateOrder["lineItems"],
@@ -26,20 +24,16 @@ async function createLineItemsData(
       const { productId, quantity } = lineItem;
       const product = await productService.get(productId);
       if (!product) {
-        throw new NotFoundError("Product not found");
+        throw new NotFoundError(MESSAGES.PRODUCT.NOT_FOUND);
       }
-      const productPrice = product.prices?.find(
-        (price) => price.isActive && price.isDefault
-      );
+      const productPrice = await pricesService.getByProductId(productId);
 
       if (!productPrice) {
-        throw new NotFoundError("Product price not found");
+        throw new NotFoundError(MESSAGES.PRICE.NOT_FOUND);
       }
 
       if (productPrice.currency !== orderCurrency) {
-        throw new ValidationError(
-          "Product currency does not match line item currency"
-        );
+        throw new ValidationError(MESSAGES.PRICE.CURRENCY_DONT_MATCH);
       }
 
       const lineItemAmount = quantity * productPrice.amount;
@@ -77,12 +71,12 @@ export const ordersService: IOrderService = {
     if (userId) {
       const existingUser = await usersService.get(orderData.userId);
       if (!existingUser) {
-        throw new ValidationError("User not found");
+        throw new ValidationError(MESSAGES.USER.NOT_FOUND);
       }
     }
 
-    if (lineItems.length === 0) {
-      throw new ValidationError("Line items are required");
+    if (!lineItems.length) {
+      throw new ValidationError(MESSAGES.LINE_ITEM.REQUIRED);
     }
 
     const lineItemsData = await createLineItemsData(
@@ -124,7 +118,7 @@ export const ordersService: IOrderService = {
     }
     const existingOrder = await ordersService.get(id);
     if (!existingOrder) {
-      throw new ValidationError("Order not found");
+      throw new ValidationError(MESSAGES.ORDER.NOT_FOUND);
     }
     const { status } = orderData;
 
@@ -138,7 +132,7 @@ export const ordersService: IOrderService = {
   delete: async (id: string) => {
     const existingOrder = await ordersService.get(id);
     if (!existingOrder) {
-      throw new NotFoundError("Order not found");
+      throw new NotFoundError(MESSAGES.ORDER.NOT_FOUND);
     }
     return prisma.order.delete({
       where: { id },

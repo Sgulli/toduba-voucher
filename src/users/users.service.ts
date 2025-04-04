@@ -1,6 +1,6 @@
-import { User } from "@prisma/client";
+import { type User } from "@prisma/client";
+import { type IUsersService } from "./interfaces/users.interface";
 import { prisma } from "../db/prisma";
-import { IService } from "../interfaces/service.interface";
 import {
   createUserSchema,
   updateUserSchema,
@@ -12,11 +12,7 @@ import { ConflictError, NotFoundError, ValidationError } from "../utils/errors";
 import { MESSAGES } from "../utils/message";
 import { kv } from "../config";
 
-interface IusersService extends IService<CreateUser, User> {
-  getByEmail: (email: string) => Promise<User | null>;
-}
-
-export const usersService: IusersService = {
+export const usersService: IUsersService = {
   create: async (data: CreateUser) => {
     const {
       success,
@@ -32,8 +28,9 @@ export const usersService: IusersService = {
       throw new ConflictError(MESSAGES.USER.ALREADY_EXISTS);
     }
 
-    if (userData.password)
+    if (userData.password) {
       userData.password = await hashPassword(userData.password);
+    }
     return prisma.user.create({
       data: userData,
     });
@@ -74,8 +71,9 @@ export const usersService: IusersService = {
       throw new NotFoundError(MESSAGES.USER.NOT_FOUND);
     }
 
-    if (userData.password)
+    if (userData.password) {
       userData.password = await hashPassword(userData.password);
+    }
     return prisma.user.update({
       where: {
         id,

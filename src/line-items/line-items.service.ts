@@ -1,12 +1,6 @@
-import { LineItem } from "@prisma/client";
-import { IService } from "../interfaces/service.interface";
+import { type LineItem } from "@prisma/client";
 import { prisma } from "../db/prisma";
-
-interface ILineItemService
-  extends Omit<IService<LineItem, LineItem>, "getAll"> {
-  getAll: (params: { orderId: string }) => Promise<LineItem[]>;
-  getByOrderId: (orderId: string) => Promise<LineItem | null>;
-}
+import { ILineItemService } from "./interfaces/line-item.interface";
 
 export const lineItemService: ILineItemService = {
   create: async (data) => {

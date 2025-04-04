@@ -35,3 +35,12 @@ export class ConflictError extends Error {
     this.statusCode = HTTP_STATUS.CONFLICT;
   }
 }
+
+export class ServerError extends Error {
+  public statusCode: number;
+  constructor(message: string) {
+    super(message.trim());
+    this.name = "ServerError";
+    this.statusCode = HTTP_STATUS.INTERNAL_SERVER_ERROR;
+  }
+}

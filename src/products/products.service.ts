@@ -1,5 +1,5 @@
 import { prisma } from "../db/prisma";
-import { IService } from "../interfaces/service.interface";
+import { type IService } from "../interfaces/service.interface";
 import {
   createProductSchema,
   updateProductSchema,

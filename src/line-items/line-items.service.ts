@@ -1,6 +1,6 @@
 import { type LineItem } from "@prisma/client";
+import { type ILineItemService } from "./interfaces/line-item.interface";
 import { prisma } from "../db/prisma";
-import { ILineItemService } from "./interfaces/line-item.interface";
 import { kvKeyFn } from "../utils/kv-key-fn";
 import { kv } from "../config";
 

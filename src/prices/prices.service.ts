@@ -7,7 +7,7 @@ import {
 import { prisma } from "../db/prisma";
 import { NotFoundError, ValidationError } from "../utils/errors";
 import { MESSAGES } from "../utils/message";
-import { IPriceService } from "./interfaces/prices.interface";
+import { type IPriceService } from "./interfaces/prices.interface";
 import { kv } from "../config";
 import { kvKeyFn } from "../utils/kv-key-fn";
 import { productService } from "../products/products.service";

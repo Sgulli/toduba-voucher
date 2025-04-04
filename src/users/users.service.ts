@@ -99,8 +99,11 @@ export const usersService: IUsersService = {
         id,
       },
     });
-    await kv.del(kvKeyFn("users"));
-    await kv.del(kvKeyFn("users", user.id));
+
+    await Promise.all([
+      kv.set(kvKeyFn("users", user.id), user),
+      kv.del(kvKeyFn("users")),
+    ]);
     return user;
   },
 };

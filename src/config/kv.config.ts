@@ -1,5 +1,5 @@
 import Redis from "ioredis";
-import { parse } from "superjson";
+import { parse, stringify } from "superjson";
 
 export const kv = new Redis();
 
@@ -12,10 +12,10 @@ export default {
   },
   set: async <T>(key: string, value: T, ttl?: number) => {
     if (ttl) {
-      await kv.set(key, JSON.stringify(value), "EX", ttl);
+      await kv.set(key, stringify(value), "EX", ttl);
       return;
     }
-    await kv.set(key, JSON.stringify(value));
+    await kv.set(key, stringify(value));
   },
   del: async (key: string) => {
     const ZERO_RESULT = 0;

@@ -1,4 +1,4 @@
-import { OrderStatus, PriceCurrency } from "@prisma/client";
+import { Order, OrderStatus, PriceCurrency } from "@prisma/client";
 import { prisma } from "../db/prisma";
 import {
   type CreateOrder,
@@ -13,6 +13,7 @@ import { getRandomValues } from "crypto";
 import { pricesService } from "../prices/prices.service";
 import { MESSAGES } from "../utils/message";
 import { type IOrderService } from "./interfaces/order.interface";
+import { kv } from "../config";
 
 async function createLineItemsData(
   lineItems: CreateOrder["lineItems"],
@@ -85,7 +86,7 @@ export const ordersService: IOrderService = {
       orderCurrency
     );
 
-    return prisma.order.create({
+    const order = await prisma.order.create({
       data: {
         ...rest,
         total: calculatedTotal,
@@ -98,14 +99,32 @@ export const ordersService: IOrderService = {
         },
       },
     });
+
+    await kv.del("orders:list");
+
+    return order;
   },
   get: async (id: string) => {
-    return prisma.order.findUniqueOrThrow({
+    const cached = await kv.get<Order>(`orders:${id}`);
+    if (cached) return cached;
+    const order = await prisma.order.findUniqueOrThrow({
       where: { id },
     });
+
+    await kv.set(`orders:${order.id}`, order);
+    return order;
   },
   getAll: async () => {
-    return prisma.order.findMany({ orderBy: { createdAt: "desc" } });
+    const cached = await kv.get<Order[]>("orders:list");
+
+    if (cached) return cached;
+
+    const orders = await prisma.order.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+
+    await kv.set("orders:list", orders);
+    return orders;
   },
   update: async (id: string, data: UpdateOrder) => {
     const {
@@ -134,9 +153,15 @@ export const ordersService: IOrderService = {
     if (!existingOrder) {
       throw new NotFoundError(MESSAGES.ORDER.NOT_FOUND);
     }
-    return prisma.order.delete({
+
+    const order = await prisma.order.delete({
       where: { id },
     });
+
+    await kv.del(`orders:${order.id}`);
+    await kv.del("orders:list");
+
+    return order;
   },
   generateCode: () => {
     const INIT_CODE = "ORD";

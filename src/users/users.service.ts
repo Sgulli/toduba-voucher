@@ -31,22 +31,31 @@ export const usersService: IUsersService = {
     if (userData.password) {
       userData.password = await hashPassword(userData.password);
     }
-    return prisma.user.create({
+    const user = await prisma.user.create({
       data: userData,
     });
+    await kv.del("users:list");
+    return user;
   },
   getAll: async () => {
     const cached = await kv.get<User[]>("users:list");
     if (cached) return cached;
 
-    return prisma.user.findMany();
+    const users = await prisma.user.findMany();
+
+    await kv.set("users:list", users);
+    return users;
   },
-  get: (id: string) => {
-    return prisma.user.findUniqueOrThrow({
+  get: async (id: string) => {
+    const cached = await kv.get<User>(`users:${id}`);
+    if (cached) return cached;
+    const user = await prisma.user.findUniqueOrThrow({
       where: {
         id,
       },
     });
+    await kv.set(`users:${user.id}`, user);
+    return user;
   },
   getByEmail: (email: string) => {
     return prisma.user.findUnique({
@@ -74,22 +83,29 @@ export const usersService: IUsersService = {
     if (userData.password) {
       userData.password = await hashPassword(userData.password);
     }
-    return prisma.user.update({
+    const user = await prisma.user.update({
       where: {
         id,
       },
       data: userData,
     });
+
+    await kv.del("users:list");
+    await kv.del(`users:${user.id}`);
+    return user;
   },
   delete: async (id: string) => {
     const existingUser = await usersService.get(id);
     if (!existingUser) {
       throw new NotFoundError(MESSAGES.USER.NOT_FOUND);
     }
-    return prisma.user.delete({
+    const user = await prisma.user.delete({
       where: {
         id,
       },
     });
+    await kv.del("users:list");
+    await kv.del(`users:${user.id}`);
+    return user;
   },
 };

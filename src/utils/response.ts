@@ -1,5 +1,3 @@
-// utils/ApiResponse.ts
-
 export class ServiceResponse<T> {
   success: boolean;
   message: string;

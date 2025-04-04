@@ -1,9 +1,9 @@
 import passport from "passport";
+import consts from "../utils/consts";
 import { ExtractJwt, Strategy as JwtStrategy } from "passport-jwt";
 import { usersService } from "../users/users.service";
 import { getEnv } from "../utils/env";
 import { MESSAGES } from "../utils/message";
-import consts from "../utils/consts";
 
 const { passportAuthKey } = consts;
 

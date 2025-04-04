@@ -1,5 +1,5 @@
 import express from "express";
-import passport from "../config/passport.config";
+import { useAuth } from "../config/passport.config";
 import { authService } from "./auth.service";
 import { Response } from "../utils/response";
 import { HTTP_STATUS } from "../utils/http-status";
@@ -21,15 +21,11 @@ router.post(API_PATHS.AUTH.SIGN_IN, async (req, res) => {
   res.status(HTTP_STATUS.OK).jsonp(apiResponse);
 });
 
-router.get(
-  API_PATHS.AUTH.ME,
-  passport.authenticate("jwt", { session: false }),
-  async (req, res) => {
-    const user = req.user;
-    if (!user) throw new NotFoundError(MESSAGES.USER.NOT_FOUND);
-    const apiResponse = Response.success(user);
-    res.status(HTTP_STATUS.OK).jsonp(apiResponse);
-  }
-);
+router.get(API_PATHS.AUTH.ME, useAuth(), async (req, res) => {
+  const user = req.user;
+  if (!user) throw new NotFoundError(MESSAGES.USER.NOT_FOUND);
+  const apiResponse = Response.success(user);
+  res.status(HTTP_STATUS.OK).jsonp(apiResponse);
+});
 
 export default router;

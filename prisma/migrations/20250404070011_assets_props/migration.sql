@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE `assets` ADD COLUMN `mime` VARCHAR(191) NULL,
+    MODIFY `alt` VARCHAR(191) NULL;

@@ -3,13 +3,14 @@ import { ExtractJwt, Strategy as JwtStrategy } from "passport-jwt";
 import { usersService } from "../users/users.service";
 import { getEnv } from "../utils/env";
 import { MESSAGES } from "../utils/message";
+import consts from "../utils/consts";
+
+const { passportAuthKey } = consts;
 
 const jwtOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
   secretOrKey: getEnv().JWT_SECRET,
 };
-
-const PASSPORT_AUTH_KEY = "jwt";
 
 passport.use(
   new JwtStrategy(jwtOptions, async (payload, done) => {
@@ -28,7 +29,7 @@ passport.use(
 );
 
 export const useAuth = () =>
-  passport.authenticate(PASSPORT_AUTH_KEY, {
+  passport.authenticate(passportAuthKey, {
     session: false,
   });
 

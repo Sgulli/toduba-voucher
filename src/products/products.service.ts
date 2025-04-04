@@ -1,4 +1,3 @@
-import { Asset, Price, Product } from "@prisma/client";
 import { prisma } from "../db/prisma";
 import { IService } from "../interfaces/service.interface";
 import {

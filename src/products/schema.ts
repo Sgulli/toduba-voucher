@@ -11,8 +11,8 @@ export const connectPriceSchema = z.object({
 export const createProductSchema = z.object({
   name: z.string(),
   description: z.string(),
-  prices: z.array(connectPriceSchema),
-  assets: z.array(connectAssetSchema),
+  prices: z.array(connectPriceSchema).optional(),
+  assets: z.array(connectAssetSchema).optional(),
 });
 
 export const updateProductSchema = createProductSchema.partial();

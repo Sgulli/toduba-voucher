@@ -1,4 +1,5 @@
 import Redis from "ioredis";
+import { parse } from "superjson";
 
 export const kv = new Redis();
 
@@ -6,7 +7,8 @@ export default {
   get: async <T>(key: string) => {
     const value = await kv.get(key);
     if (!value) return null;
-    return JSON.parse(value) as T;
+
+    return parse<T>(value);
   },
   set: async <T>(key: string, value: T, ttl?: number) => {
     if (ttl) {

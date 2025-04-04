@@ -10,6 +10,7 @@ import { NotFoundError, ValidationError } from "../utils/errors";
 import { MESSAGES } from "../utils/message";
 import { type ProductWithRelationships } from "./types/product-with-relationships.type";
 import { kv } from "../config";
+import { kvKeyFn } from "../utils/kv-key-fn";
 
 export const productService: IService<CreateProduct, ProductWithRelationships> =
   {
@@ -37,29 +38,24 @@ export const productService: IService<CreateProduct, ProductWithRelationships> =
           },
         },
       });
-
-      await kv.del("products:list");
-
+      await kv.del(kvKeyFn("products"));
       return product;
     },
     getAll: async () => {
       const cached = await kv.get<ProductWithRelationships[]>("products:list");
-      if (cached) return cached;
+      if (cached && cached.length > 0) return cached;
       const products = await prisma.product.findMany({
         include: {
           prices: true,
           assets: true,
         },
       });
-
-      await kv.set("products:list", products);
-
+      await kv.set(kvKeyFn("products"), products);
       return products;
     },
     get: async (id: string) => {
       const cached = await kv.get<ProductWithRelationships>(`products:${id}`);
       if (cached) return cached;
-
       const product = await prisma.product.findUniqueOrThrow({
         where: {
           id,
@@ -69,9 +65,7 @@ export const productService: IService<CreateProduct, ProductWithRelationships> =
           assets: true,
         },
       });
-
-      await kv.set(`products:${product.id}`, product);
-
+      await kv.set(kvKeyFn("products", product.id), product);
       return product;
     },
     update: async (id: string, data: UpdateProduct) => {
@@ -102,10 +96,10 @@ export const productService: IService<CreateProduct, ProductWithRelationships> =
           },
         },
       });
-
-      await kv.del("products:list");
-      await kv.del(`products:${product.id}`);
-
+      await Promise.all([
+        kv.set(kvKeyFn("products", product.id), product),
+        kv.del(kvKeyFn("products")),
+      ]);
       return product;
     },
     delete: async (id: string) => {
@@ -114,8 +108,10 @@ export const productService: IService<CreateProduct, ProductWithRelationships> =
           id,
         },
       });
-      await kv.del("products:list");
-      await kv.del(`products:${product.id}`);
+      await Promise.all([
+        kv.del(kvKeyFn("products")),
+        kv.del(kvKeyFn("products", product.id)),
+      ]);
       return product;
     },
   };

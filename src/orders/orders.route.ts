@@ -3,35 +3,44 @@ import { ordersService } from "./orders.service";
 import { HTTP_STATUS } from "../utils/http-status";
 import { API_PATHS } from "../utils/api-paths";
 import { Response } from "../utils/response";
+import { tryCatch } from "../utils/try-catch";
+import { ServerError } from "../utils/errors";
 
 const router = express.Router();
 
 router.get(API_PATHS.ORDERS.GET_ALL, async (_, res) => {
-  const orders = await ordersService.getAll();
-  const apiResponse = Response.success(orders);
+  const { error, data } = await tryCatch(ordersService.getAll());
+  if (error) throw new ServerError(error.message);
+  const apiResponse = Response.success(data);
   res.status(HTTP_STATUS.OK).jsonp(apiResponse);
 });
 router.get(API_PATHS.ORDERS.GET, async (req, res) => {
-  const order = await ordersService.get(req.params.id);
-  const apiResponse = Response.success(order);
+  const { error, data } = await tryCatch(ordersService.get(req.params.id));
+  if (error) throw new ServerError(error.message);
+  const apiResponse = Response.success(data);
   res.status(HTTP_STATUS.OK).jsonp(apiResponse);
 });
 
 router.post(API_PATHS.ORDERS.CREATE, async (req, res) => {
-  const order = await ordersService.create(req.body);
-  const apiResponse = Response.success(order);
+  const { error, data } = await tryCatch(ordersService.create(req.body));
+  if (error) throw new ServerError(error.message);
+  const apiResponse = Response.success(data);
   res.status(HTTP_STATUS.CREATED).jsonp(apiResponse);
 });
 
 router.patch(API_PATHS.ORDERS.UPDATE, async (req, res) => {
-  const order = await ordersService.update(req.params.id, req.body);
-  const apiResponse = Response.success(order);
+  const { error, data } = await tryCatch(
+    ordersService.update(req.params.id, req.body)
+  );
+  if (error) throw new ServerError(error.message);
+  const apiResponse = Response.success(data);
   res.status(HTTP_STATUS.OK).jsonp(apiResponse);
 });
 
 router.delete(API_PATHS.ORDERS.DELETE, async (req, res) => {
-  const order = await ordersService.delete(req.params.id);
-  const apiResponse = Response.success(order);
+  const { error, data } = await tryCatch(ordersService.delete(req.params.id));
+  if (error) throw new ServerError(error.message);
+  const apiResponse = Response.success(data);
   res.status(HTTP_STATUS.OK).jsonp(apiResponse);
 });
 

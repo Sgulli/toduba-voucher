@@ -3,21 +3,24 @@ import { useAuth } from "../config/passport.config";
 import { authService } from "./auth.service";
 import { Response } from "../utils/response";
 import { HTTP_STATUS } from "../utils/http-status";
-import { NotFoundError } from "../utils/errors";
+import { NotFoundError, ServerError } from "../utils/errors";
 import { MESSAGES } from "../utils/message";
 import { API_PATHS } from "../utils/api-paths";
+import { tryCatch } from "../utils/try-catch";
 
 const router = express.Router();
 
 router.post(API_PATHS.AUTH.SIGN_UP, async (req, res) => {
-  const signUp = await authService.signUp(req.body);
-  const apiResponse = Response.success(signUp);
+  const { error, data } = await tryCatch(authService.signUp(req.body));
+  if (error) throw new ServerError(error.message);
+  const apiResponse = Response.success(data);
   res.status(HTTP_STATUS.CREATED).jsonp(apiResponse);
 });
 
 router.post(API_PATHS.AUTH.SIGN_IN, async (req, res) => {
-  const signIn = await authService.signIn(req.body);
-  const apiResponse = Response.success(signIn);
+  const { error, data } = await tryCatch(authService.signIn(req.body));
+  if (error) throw new ServerError(error.message);
+  const apiResponse = Response.success(data);
   res.status(HTTP_STATUS.OK).jsonp(apiResponse);
 });
 

@@ -1,4 +1,4 @@
-import { Order, OrderStatus, PriceCurrency } from "@prisma/client";
+import { type Order, OrderStatus, PriceCurrency } from "@prisma/client";
 import { prisma } from "../db/prisma";
 import {
   type CreateOrder,
@@ -6,54 +6,17 @@ import {
   createOrderSchema,
   updateOrderSchema,
 } from "./schema";
+import { type IOrderService } from "./interfaces/order.interface";
 import { NotFoundError, ValidationError } from "../utils/errors";
-import { productService } from "../products/products.service";
 import { usersService } from "../users/users.service";
 import { getRandomValues } from "crypto";
-import { pricesService } from "../prices/prices.service";
 import { MESSAGES } from "../utils/message";
-import { type IOrderService } from "./interfaces/order.interface";
 import { kv } from "../config";
-
-async function createLineItemsData(
-  lineItems: CreateOrder["lineItems"],
-  calculatedTotal: number,
-  orderCurrency: PriceCurrency | null
-) {
-  const lineItemsData = await Promise.all(
-    lineItems.map(async (lineItem) => {
-      const { productId, quantity } = lineItem;
-      const product = await productService.get(productId);
-      if (!product) {
-        throw new NotFoundError(MESSAGES.PRODUCT.NOT_FOUND);
-      }
-      const productPrice = await pricesService.getByProductId(productId);
-
-      if (!productPrice) {
-        throw new NotFoundError(MESSAGES.PRICE.NOT_FOUND);
-      }
-
-      if (productPrice.currency !== orderCurrency) {
-        throw new ValidationError(MESSAGES.PRICE.CURRENCY_DONT_MATCH);
-      }
-
-      const lineItemAmount = quantity * productPrice.amount;
-      calculatedTotal += lineItemAmount;
-
-      return {
-        productId,
-        quantity,
-        amount: lineItemAmount,
-        lineItemAmount,
-        currency: productPrice.currency,
-      };
-    })
-  );
-  return lineItemsData;
-}
+import { createLineItemsData } from "./utils/create-line-item-data";
+import { kvKeyFn } from "../utils/kv-key-fn";
 
 export const ordersService: IOrderService = {
-  create: async (data) => {
+  create: async (data: CreateOrder) => {
     let calculatedTotal = 0;
     let orderCurrency: PriceCurrency | null = null;
 
@@ -99,31 +62,25 @@ export const ordersService: IOrderService = {
         },
       },
     });
-
-    await kv.del("orders:list");
-
+    await kv.del(kvKeyFn("orders"));
     return order;
   },
   get: async (id: string) => {
-    const cached = await kv.get<Order>(`orders:${id}`);
+    const cached = await kv.get<Order>(kvKeyFn("orders", id));
     if (cached) return cached;
     const order = await prisma.order.findUniqueOrThrow({
       where: { id },
     });
-
-    await kv.set(`orders:${order.id}`, order);
+    await kv.set(kvKeyFn("orders", order.id), order);
     return order;
   },
   getAll: async () => {
-    const cached = await kv.get<Order[]>("orders:list");
-
-    if (cached) return cached;
-
+    const cached = await kv.get<Order[]>(kvKeyFn("orders"));
+    if (cached && cached.length > 0) return cached;
     const orders = await prisma.order.findMany({
       orderBy: { createdAt: "desc" },
     });
-
-    await kv.set("orders:list", orders);
+    await kv.set(kvKeyFn("orders"), orders);
     return orders;
   },
   update: async (id: string, data: UpdateOrder) => {
@@ -141,26 +98,30 @@ export const ordersService: IOrderService = {
     }
     const { status } = orderData;
 
-    return prisma.order.update({
+    const order = await prisma.order.update({
       where: { id },
       data: {
         status,
       },
     });
+    await Promise.all([
+      kv.set(kvKeyFn("orders", id), order),
+      kv.del(kvKeyFn("orders")),
+    ]);
+    return order;
   },
   delete: async (id: string) => {
     const existingOrder = await ordersService.get(id);
     if (!existingOrder) {
       throw new NotFoundError(MESSAGES.ORDER.NOT_FOUND);
     }
-
     const order = await prisma.order.delete({
       where: { id },
     });
-
-    await kv.del(`orders:${order.id}`);
-    await kv.del("orders:list");
-
+    await Promise.all([
+      kv.del(kvKeyFn("orders")),
+      kv.del(kvKeyFn("orders", id)),
+    ]);
     return order;
   },
   generateCode: () => {

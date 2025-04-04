@@ -17,13 +17,13 @@ export const errorHandler = (
       err.cause as string
     );
 
-    res.status(err.statusCode).json(apiError);
-    next(apiError);
+    res.status(err.statusCode).json(apiError.message);
+    next(apiError.message);
     return;
   }
 
   res
-    .status(HTTP_STATUS.SERVICE_UNAVAILABLE)
+    .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
     .json({ error: MESSAGES.SERVER.INTERNAL_ERROR });
   next(err);
 };

@@ -8,39 +8,39 @@ import { ServerError } from "../utils/errors";
 
 const router = express.Router();
 
-router.get(API_PATHS.USERS.GET_ALL, async (_, res) => {
+router.get(API_PATHS.USERS.GET_ALL, async (_, res, next) => {
   const { error, data } = await tryCatch(usersService.getAll());
-  if (error) throw new ServerError(error.message);
+  if (error) return next(new ServerError(error.message));
   const apiResponse = Response.success(data);
   res.status(HTTP_STATUS.OK).jsonp(apiResponse);
 });
 
-router.get(API_PATHS.USERS.GET, async (req, res) => {
+router.get(API_PATHS.USERS.GET, async (req, res, next) => {
   const { error, data } = await tryCatch(usersService.get(req.params.id));
-  if (error) throw new ServerError(error.message);
+  if (error) return next(new ServerError(error.message));
   const apiResponse = Response.success(data);
   res.status(HTTP_STATUS.OK).jsonp(apiResponse);
 });
 
-router.post(API_PATHS.USERS.CREATE, async (req, res) => {
+router.post(API_PATHS.USERS.CREATE, async (req, res, next) => {
   const { error, data } = await tryCatch(usersService.create(req.body));
-  if (error) throw new ServerError(error.message);
+  if (error) return next(new ServerError(error.message));
   const apiResponse = Response.success(data);
   res.status(HTTP_STATUS.CREATED).jsonp(apiResponse);
 });
 
-router.patch(API_PATHS.USERS.UPDATE, async (req, res) => {
+router.patch(API_PATHS.USERS.UPDATE, async (req, res, next) => {
   const { error, data } = await tryCatch(
     usersService.update(req.params.id, req.body)
   );
-  if (error) throw new ServerError(error.message);
+  if (error) return next(new ServerError(error.message));
   const apiResponse = Response.success(data);
   res.status(HTTP_STATUS.OK).jsonp(apiResponse);
 });
 
-router.delete(API_PATHS.USERS.DELETE, async (req, res) => {
+router.delete(API_PATHS.USERS.DELETE, async (req, res, next) => {
   const { error, data } = await tryCatch(usersService.delete(req.params.id));
-  if (error) throw new ServerError(error.message);
+  if (error) return next(new ServerError(error.message));
   const apiResponse = Response.success(data);
   res.status(HTTP_STATUS.OK).jsonp(apiResponse);
 });

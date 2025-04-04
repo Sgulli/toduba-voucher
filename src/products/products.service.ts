@@ -54,7 +54,9 @@ export const productService: IService<CreateProduct, ProductWithRelationships> =
       return products;
     },
     get: async (id: string) => {
-      const cached = await kv.get<ProductWithRelationships>(`products:${id}`);
+      const cached = await kv.get<ProductWithRelationships>(
+        kvKeyFn("products", id)
+      );
       if (cached) return cached;
       const product = await prisma.product.findUniqueOrThrow({
         where: {
@@ -78,9 +80,7 @@ export const productService: IService<CreateProduct, ProductWithRelationships> =
         throw new ValidationError(error.message);
       }
       const existingProduct = await productService.get(id);
-      if (!existingProduct) {
-        throw new NotFoundError(MESSAGES.PRODUCT.NOT_FOUND);
-      }
+      if (!existingProduct) throw new NotFoundError(MESSAGES.PRODUCT.NOT_FOUND);
       const { prices, assets, ...rest } = productData;
       const product = await prisma.product.update({
         where: {

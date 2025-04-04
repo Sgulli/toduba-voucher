@@ -28,10 +28,7 @@ export const assetsService: IAssetsService = {
     if (error) throw new ServerError(error.message);
 
     const product = await productService.get(productId);
-    if (!product) {
-      throw new ValidationError(MESSAGES.PRODUCT.NOT_FOUND);
-    }
-
+    if (!product) throw new ValidationError(MESSAGES.PRODUCT.NOT_FOUND);
     const asset = await prisma.asset.create({
       data: {
         name: filename,

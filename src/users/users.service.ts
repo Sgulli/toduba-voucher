@@ -20,15 +20,9 @@ export const usersService: IUsersService = {
       data: userData,
       error,
     } = await createUserSchema.safeParseAsync(data);
-    if (!success) {
-      throw new ValidationError(error.message);
-    }
-
+    if (!success) throw new ValidationError(error.message);
     const existingUser = await usersService.getByEmail(userData.email);
-    if (existingUser) {
-      throw new ConflictError(MESSAGES.USER.ALREADY_EXISTS);
-    }
-
+    if (existingUser) throw new ConflictError(MESSAGES.USER.ALREADY_EXISTS);
     if (userData.password) {
       userData.password = await hashPassword(userData.password);
     }
@@ -41,9 +35,7 @@ export const usersService: IUsersService = {
   getAll: async () => {
     const cached = await kv.get<User[]>(kvKeyFn("users"));
     if (cached && cached.length > 0) return cached;
-
     const users = await prisma.user.findMany();
-
     await kv.set(kvKeyFn("users"), users);
     return users;
   },
@@ -76,9 +68,7 @@ export const usersService: IUsersService = {
       error,
     } = await updateUserSchema.safeParseAsync(data);
 
-    if (!success) {
-      throw new ValidationError(error.message);
-    }
+    if (!success) throw new ValidationError(error.message);
 
     const existingUser = await usersService.get(id);
     if (!existingUser) {
@@ -102,9 +92,8 @@ export const usersService: IUsersService = {
   },
   delete: async (id: string) => {
     const existingUser = await usersService.get(id);
-    if (!existingUser) {
-      throw new NotFoundError(MESSAGES.USER.NOT_FOUND);
-    }
+    if (!existingUser) throw new NotFoundError(MESSAGES.USER.NOT_FOUND);
+
     const user = await prisma.user.delete({
       where: {
         id,

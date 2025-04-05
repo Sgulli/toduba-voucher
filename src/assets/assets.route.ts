@@ -1,13 +1,15 @@
 import express from "express";
 import { API_PATHS } from "../utils/api-paths";
-import { useUpload } from "../config";
 import { assetsController } from "./assets.controller";
+import { useUpload } from "../utils/use-upload";
+import consts from "../utils/consts";
 
+const { fileName } = consts;
 const router = express.Router();
 
 router.post(
   API_PATHS.ASSETS.UPLOAD,
-  useUpload("file"),
+  useUpload(fileName),
   assetsController.upload
 );
 

@@ -6,6 +6,4 @@ const upload = multer({
   },
 });
 
-export const useUpload = (fieldName: string) => upload.single(fieldName);
-
 export default upload;

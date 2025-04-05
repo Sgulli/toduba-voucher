@@ -3,4 +3,5 @@ export default {
   passportAuthKey: "jwt",
   expirationKey: "EX",
   zeroResult: 0,
+  fileName: "file",
 } as const;

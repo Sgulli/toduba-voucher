@@ -1,9 +1,9 @@
 import express from "express";
-import { useAuth } from "../config/passport.config";
 import { API_PATHS } from "../utils/api-paths";
 import { authController } from "./auth.controller";
 import { validate } from "../middlewares/validate.middleware";
 import { signInSchema, signUpSchema } from "./schema";
+import { useAuth } from "../utils/use-auth";
 
 const router = express.Router();
 
@@ -19,6 +19,6 @@ router.post(
   authController.signin
 );
 
-router.get(API_PATHS.AUTH.ME, useAuth(), authController.me);
+router.get(API_PATHS.AUTH.ME, useAuth, authController.me);
 
 export default router;

@@ -23,8 +23,6 @@ export const ordersController: IController = {
     const { error, data } = await tryCatch(
       ordersService.create(req.user?.id, req.validated.body)
     );
-    console.log("error", error);
-
     if (error) return next(error);
     const apiResponse = Response.success(data);
     res.status(HTTP_STATUS.CREATED).jsonp(apiResponse);

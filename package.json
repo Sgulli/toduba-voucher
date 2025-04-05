@@ -9,7 +9,9 @@
     "start:prod": "node index.js",
     "build": "tsc",
     "dev": "tsx watch ./src/index.ts",
-    "studio": "npx prisma studio"
+    "studio": "npx prisma studio",
+    "prisma:deploy": "npx prisma migrate deploy",
+    "prisma:generate": "npx prisma generate"
   },
   "keywords": [],
   "author": "Simone Guglielmi",

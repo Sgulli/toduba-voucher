@@ -16,7 +16,7 @@ import { createLineItemsData } from "./utils/create-line-item-data";
 import { kvKeyFn } from "../utils/kv-key-fn";
 
 export const ordersService: IOrderService = {
-  create: async (data: CreateOrder) => {
+  create: async (userId: string, data: CreateOrder) => {
     let calculatedTotal = 0;
     let orderCurrency: PriceCurrency | null = null;
 
@@ -26,22 +26,15 @@ export const ordersService: IOrderService = {
       error,
     } = await createOrderSchema.safeParseAsync(data);
 
-    if (!success) {
-      throw new ValidationError(error.message);
-    }
+    if (!success) throw new ValidationError(error.message);
 
-    const { userId, lineItems, ...rest } = orderData;
+    const { lineItems, ...rest } = orderData;
 
-    if (userId) {
-      const existingUser = await usersService.get(orderData.userId);
-      if (!existingUser) {
-        throw new ValidationError(MESSAGES.USER.NOT_FOUND);
-      }
-    }
+    const user = await usersService.get(userId);
+    if (!user) throw new NotFoundError(MESSAGES.USER.NOT_FOUND);
 
-    if (!lineItems.length) {
+    if (!lineItems.length)
       throw new ValidationError(MESSAGES.LINE_ITEM.REQUIRED);
-    }
 
     const lineItemsData = await createLineItemsData(
       lineItems,

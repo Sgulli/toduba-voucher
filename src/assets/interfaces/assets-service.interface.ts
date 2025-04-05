@@ -1,5 +1,5 @@
+import { Asset } from "@prisma/client";
 import { GetResponse } from "../types/get-response.type";
-import { type UploadResponse } from "../types/upload-response.type";
 
 export interface IAssetsService {
   bucket: string;
@@ -7,6 +7,6 @@ export interface IAssetsService {
     productId: string,
     alt?: string,
     file?: Express.Multer.File
-  ) => Promise<UploadResponse>;
+  ) => Promise<Asset>;
   get: (id: string) => Promise<GetResponse>;
 }

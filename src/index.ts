@@ -1,21 +1,19 @@
 import express from "express";
-import { passport } from "./config";
 import api from "./api/v1/route";
+import cors from "cors";
+import { passport } from "./config";
 import { getEnv } from "./utils/env";
 import { notFoundHandler, errorHandler } from "./middlewares";
-import { MESSAGES } from "./utils/message";
 
 const { PORT, NODE_ENV } = getEnv();
 
 const app = express();
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
+app.use(cors());
 
-app.get("/", (_, res) => {
-  res.jsonp({ message: MESSAGES.SERVER.SERVER_INITIALIZED });
-});
 app.use(api);
 
 app.use(errorHandler);

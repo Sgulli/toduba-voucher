@@ -1,48 +1,27 @@
 import express from "express";
-import { usersService } from "./users.service";
-import { HTTP_STATUS } from "../utils/http-status";
 import { API_PATHS } from "../utils/api-paths";
-import { Response } from "../utils/response";
-import { tryCatch } from "../utils/try-catch";
-import { ServerError } from "../utils/errors";
+import { usersController } from "./users.controller";
+import { validate } from "../middlewares/validate.middleware";
+import { createUserSchema, updateUserSchema } from "./schema";
 
 const router = express.Router();
 
-router.get(API_PATHS.USERS.GET_ALL, async (_, res, next) => {
-  const { error, data } = await tryCatch(usersService.getAll());
-  if (error) return next(new ServerError(error.message));
-  const apiResponse = Response.success(data);
-  res.status(HTTP_STATUS.OK).jsonp(apiResponse);
-});
+router.get(API_PATHS.USERS.GET_ALL, usersController.getAll);
 
-router.get(API_PATHS.USERS.GET, async (req, res, next) => {
-  const { error, data } = await tryCatch(usersService.get(req.params.id));
-  if (error) return next(new ServerError(error.message));
-  const apiResponse = Response.success(data);
-  res.status(HTTP_STATUS.OK).jsonp(apiResponse);
-});
+router.get(API_PATHS.USERS.GET, usersController.get);
 
-router.post(API_PATHS.USERS.CREATE, async (req, res, next) => {
-  const { error, data } = await tryCatch(usersService.create(req.body));
-  if (error) return next(new ServerError(error.message));
-  const apiResponse = Response.success(data);
-  res.status(HTTP_STATUS.CREATED).jsonp(apiResponse);
-});
+router.post(
+  API_PATHS.USERS.CREATE,
+  validate(createUserSchema),
+  usersController.create
+);
 
-router.patch(API_PATHS.USERS.UPDATE, async (req, res, next) => {
-  const { error, data } = await tryCatch(
-    usersService.update(req.params.id, req.body)
-  );
-  if (error) return next(new ServerError(error.message));
-  const apiResponse = Response.success(data);
-  res.status(HTTP_STATUS.OK).jsonp(apiResponse);
-});
+router.patch(
+  API_PATHS.USERS.UPDATE,
+  validate(updateUserSchema),
+  usersController.update
+);
 
-router.delete(API_PATHS.USERS.DELETE, async (req, res, next) => {
-  const { error, data } = await tryCatch(usersService.delete(req.params.id));
-  if (error) return next(new ServerError(error.message));
-  const apiResponse = Response.success(data);
-  res.status(HTTP_STATUS.OK).jsonp(apiResponse);
-});
+router.delete(API_PATHS.USERS.DELETE, usersController.delete);
 
 export default router;

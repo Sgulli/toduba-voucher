@@ -19,7 +19,7 @@ export const API_PATHS = {
     DELETE: "/products/:id",
   },
   ASSETS: {
-    UPLOAD: "/assets/upload",
+    UPLOAD: "/assets/:productId/upload",
     GET: "/assets/:id",
   },
   PRICES: {
@@ -31,8 +31,8 @@ export const API_PATHS = {
   },
   ORDERS: {
     GET: "/orders/:id",
-    GET_ALL: "/orders",
-    CREATE: "/orders",
+    GET_ALL: "/orders/:userId",
+    CREATE: "/orders/:userId",
     UPDATE: "/orders/:id",
     DELETE: "/orders/:id",
   },

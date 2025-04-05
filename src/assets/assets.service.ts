@@ -4,7 +4,7 @@ import { productService } from "../products/products.service";
 import { getEnv } from "../utils/env";
 import { ServerError, ValidationError } from "../utils/errors";
 import { MESSAGES } from "../utils/message";
-import { type IAssetsService } from "./interfaces/assets.interface";
+import { type IAssetsService } from "./interfaces/assets-service.interface";
 
 export const assetsService: IAssetsService = {
   bucket: getEnv().BUCKET_NAME,
@@ -16,11 +16,11 @@ export const assetsService: IAssetsService = {
   ) => {
     if (!file) throw new ValidationError(MESSAGES.ASSETS.FILE_REQUIRED);
 
-    const { filename, buffer, mimetype } = file;
+    const { buffer, mimetype } = file;
 
     const { data, error } = await supabase.storage
       .from(assetsService.bucket)
-      .upload(filename, buffer, {
+      .upload("test", buffer, {
         contentType: mimetype,
         upsert: true,
       });
@@ -31,10 +31,10 @@ export const assetsService: IAssetsService = {
     if (!product) throw new ValidationError(MESSAGES.PRODUCT.NOT_FOUND);
     const asset = await prisma.asset.create({
       data: {
-        name: filename,
-        url: data?.path,
+        name: "test",
+        path: data?.path,
         productId,
-        alt,
+        alt: alt ?? "",
         mime: mimetype,
       },
     });
@@ -46,18 +46,22 @@ export const assetsService: IAssetsService = {
 
     await productService.update(productId, { assets: updatedAssets });
 
-    return data;
+    return asset;
   },
 
   get: async (id: string) => {
-    const { url } = await prisma.asset.findFirstOrThrow({
+    const { path } = await prisma.asset.findFirstOrThrow({
       where: {
         id,
       },
     });
 
+    const { data } = supabase.storage
+      .from(assetsService.bucket)
+      .getPublicUrl(path);
+
     return {
-      url,
+      url: data.publicUrl,
     };
   },
 };

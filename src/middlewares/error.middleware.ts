@@ -17,7 +17,7 @@ export const errorHandler = (
       err.cause as string
     );
 
-    res.status(err.statusCode).json(apiError.message);
+    res.status(err.statusCode).json(JSON.parse(apiError.message));
     next(apiError.message);
     return;
   }

@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 export class ServiceResponse<T> {
   success: boolean;
   message: string;
@@ -45,3 +47,16 @@ export class Response {
     );
   }
 }
+
+export const ServiceResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
+  z.object({
+    success: z.boolean(),
+    message: z.string(),
+    data: dataSchema.optional(),
+    error: z
+      .object({
+        code: z.number(),
+        details: z.string(),
+      })
+      .optional(),
+  });

@@ -568,7 +568,7 @@ bun install
 1. Build and start the containers (in daemon mode):
 
    ```bash
-   docker-compose up -b -d
+   docker-compose up --build -d
    ```
 
 2. Access the application at `http://localhost:<PORT>`.

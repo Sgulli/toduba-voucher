@@ -13,7 +13,7 @@ export const priceSchema = z.object({
 export const createPriceSchema = z.object({
   amount: z.number().positive(),
   currency: z.enum([PriceCurrency.EUR, PriceCurrency.USD]),
-  productId: z.string().nullable(),
+  productId: z.string().nullable().optional(),
 });
 
 export const priceParamsSchema = z.object({

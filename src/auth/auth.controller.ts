@@ -1,4 +1,4 @@
-import { NotFoundError, ServerError } from "../utils/errors";
+import { UnauthorizedError } from "../utils/errors";
 import { HTTP_STATUS } from "../utils/http-status";
 import { MESSAGES } from "../utils/message";
 import { Response } from "../utils/response";
@@ -15,7 +15,7 @@ export const authController: IAuthController = {
         password,
       })
     );
-    if (error) return next(new ServerError(error.message));
+    if (error) return next(error);
     const apiResponse = Response.success(data);
     res.status(HTTP_STATUS.OK).jsonp(apiResponse);
   },
@@ -23,13 +23,13 @@ export const authController: IAuthController = {
     const { error, data } = await tryCatch(
       authService.signUp(req.validated.body)
     );
-    if (error) return next(new ServerError(error.message));
+    if (error) return next(error);
     const apiResponse = Response.success(data);
     res.status(HTTP_STATUS.CREATED).jsonp(apiResponse);
   },
   me: async (req, res, next) => {
     const user = req.user;
-    if (!user) return next(new NotFoundError(MESSAGES.USER.NOT_FOUND));
+    if (!user) return next(new UnauthorizedError(MESSAGES.USER.NOT_FOUND));
     const apiResponse = Response.success(user);
     res.status(HTTP_STATUS.OK).jsonp(apiResponse);
   },

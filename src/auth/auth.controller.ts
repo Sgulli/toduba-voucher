@@ -8,7 +8,7 @@ import { IAuthController } from "./interface/auth-controller.interface";
 
 export const authController: IAuthController = {
   signin: async (req, res, next) => {
-    const { email, password } = req.validated?.body ?? {};
+    const { email, password } = req.validated.body ?? {};
     const { error, data } = await tryCatch(
       authService.signIn({
         email,
@@ -20,7 +20,9 @@ export const authController: IAuthController = {
     res.status(HTTP_STATUS.OK).jsonp(apiResponse);
   },
   signup: async (req, res, next) => {
-    const { error, data } = await tryCatch(authService.signUp(req.body));
+    const { error, data } = await tryCatch(
+      authService.signUp(req.validated.body)
+    );
     if (error) return next(new ServerError(error.message));
     const apiResponse = Response.success(data);
     res.status(HTTP_STATUS.CREATED).jsonp(apiResponse);

@@ -1,12 +1,7 @@
 import { prisma } from "../db/prisma";
 import { type IService } from "../interfaces/service.interface";
-import {
-  createProductSchema,
-  updateProductSchema,
-  type CreateProduct,
-  type UpdateProduct,
-} from "./schema";
-import { NotFoundError, ValidationError } from "../utils/errors";
+import { type CreateProduct, type UpdateProduct } from "./schema";
+import { NotFoundError } from "../utils/errors";
 import { MESSAGES } from "../utils/message";
 import { type ProductWithRelationships } from "./types/product-with-relationships.type";
 import { kv } from "../config";
@@ -15,15 +10,7 @@ import { kvKeyFn } from "../utils/kv-key-fn";
 export const productService: IService<CreateProduct, ProductWithRelationships> =
   {
     create: async (data: CreateProduct) => {
-      const {
-        success,
-        data: productData,
-        error,
-      } = await createProductSchema.safeParseAsync(data);
-
-      if (!success) throw new ValidationError(error.message);
-
-      const { prices, assets, ...rest } = productData;
+      const { prices, assets, ...rest } = data;
 
       const product = await prisma.product.create({
         data: {
@@ -71,17 +58,9 @@ export const productService: IService<CreateProduct, ProductWithRelationships> =
       return product;
     },
     update: async (id: string, data: UpdateProduct) => {
-      const {
-        success,
-        data: productData,
-        error,
-      } = await updateProductSchema.safeParseAsync(data);
-      if (!success) {
-        throw new ValidationError(error.message);
-      }
+      const { prices, assets, ...rest } = data;
       const existingProduct = await productService.get(id);
       if (!existingProduct) throw new NotFoundError(MESSAGES.PRODUCT.NOT_FOUND);
-      const { prices, assets, ...rest } = productData;
       const product = await prisma.product.update({
         where: {
           id,

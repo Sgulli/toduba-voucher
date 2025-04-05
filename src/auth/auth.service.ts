@@ -18,16 +18,7 @@ function generateToken<T extends object>(
 
 export const authService = {
   signUp: async (data: SignUpSchema) => {
-    const {
-      success,
-      data: signUpData,
-      error,
-    } = await signUpSchema.safeParseAsync(data);
-    if (!success) {
-      throw new ValidationError(error.message);
-    }
-
-    const user = await usersService.create(signUpData);
+    const user = await usersService.create(data);
 
     const payload = {
       id: user.id,
@@ -44,15 +35,7 @@ export const authService = {
   },
 
   signIn: async (data: SignInSchema) => {
-    const {
-      success,
-      data: signUpData,
-      error,
-    } = await signUpSchema.safeParseAsync(data);
-    if (!success) {
-      throw new ValidationError(error.message);
-    }
-    const { email, password } = signUpData;
+    const { email, password } = data;
     const user = await usersService.getByEmail(email);
     if (!user) {
       throw new NotFoundError(MESSAGES.USER.NOT_FOUND);

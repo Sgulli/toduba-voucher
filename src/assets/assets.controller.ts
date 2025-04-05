@@ -13,7 +13,7 @@ export const assetsController: IAssetsController = {
     res.status(HTTP_STATUS.OK).jsonp(apiResponse);
   },
   upload: async (req, res, next) => {
-    const { alt } = req.body;
+    const { alt } = req.validated.body;
     const { error, data } = await tryCatch(
       assetsService.upload(req.params.userId, alt, req.file)
     );

@@ -19,14 +19,16 @@ export const usersController: IController = {
     res.status(HTTP_STATUS.OK).jsonp(apiResponse);
   },
   create: async (req, res, next) => {
-    const { error, data } = await tryCatch(usersService.create(req.body));
+    const { error, data } = await tryCatch(
+      usersService.create(req.validated.body)
+    );
     if (error) return next(new ServerError(error.message));
     const apiResponse = Response.success(data);
     res.status(HTTP_STATUS.CREATED).jsonp(apiResponse);
   },
   update: async (req, res, next) => {
     const { error, data } = await tryCatch(
-      usersService.update(req.params.id, req.body)
+      usersService.update(req.params.id, req.validated.body)
     );
     if (error) return next(new ServerError(error.message));
     const apiResponse = Response.success(data);

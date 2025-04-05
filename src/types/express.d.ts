@@ -1,6 +1,6 @@
 namespace Express {
   interface Request {
-    validated?: {
+    validated: {
       body?: any;
       query?: any;
       params?: any;

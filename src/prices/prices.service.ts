@@ -1,11 +1,7 @@
 import { type Price, PriceCurrency } from "@prisma/client";
-import {
-  type CreatePrice,
-  type UpdatePrice,
-  createPriceSchema,
-} from "./schema";
+import { type CreatePrice, type UpdatePrice } from "./schema";
 import { prisma } from "../db/prisma";
-import { NotFoundError, ValidationError } from "../utils/errors";
+import { NotFoundError } from "../utils/errors";
 import { MESSAGES } from "../utils/message";
 import { type IPriceService } from "./interfaces/prices.interface";
 import { kv } from "../config";
@@ -14,16 +10,7 @@ import { productService } from "../products/products.service";
 
 export const pricesService: IPriceService = {
   create: async (data: CreatePrice) => {
-    const {
-      success,
-      data: priceData,
-      error,
-    } = await createPriceSchema.safeParseAsync(data);
-    if (!success) {
-      throw new ValidationError(error.message);
-    }
-
-    const { productId } = priceData;
+    const { productId } = data;
     if (productId) {
       const existingProduct = await productService.get(productId);
       if (!existingProduct) {
@@ -31,7 +18,7 @@ export const pricesService: IPriceService = {
       }
     }
     const price = await prisma.price.create({
-      data: priceData,
+      data,
     });
     await kv.del(kvKeyFn("prices"));
     return price;
@@ -57,19 +44,11 @@ export const pricesService: IPriceService = {
     return price;
   },
   update: async (id: string, data: UpdatePrice) => {
-    const {
-      success,
-      data: priceData,
-      error,
-    } = await createPriceSchema.safeParseAsync(data);
-    if (!success) {
-      throw new ValidationError(error.message);
-    }
+    const { productId } = data;
     const existingPrice = await pricesService.get(id);
     if (!existingPrice) {
       throw new NotFoundError(MESSAGES.PRODUCT.NOT_FOUND);
     }
-    const { productId } = priceData;
     if (productId) {
       const existingProduct = await productService.get(productId);
       if (!existingProduct) {
@@ -78,7 +57,7 @@ export const pricesService: IPriceService = {
     }
     const price = await prisma.price.update({
       where: { id },
-      data: priceData,
+      data,
     });
     await Promise.all([
       kv.set(kvKeyFn("prices", price.id), price),

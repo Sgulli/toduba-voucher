@@ -1,11 +1,6 @@
 import { type Order, OrderStatus, PriceCurrency } from "@prisma/client";
 import { prisma } from "../db/prisma";
-import {
-  type CreateOrder,
-  type UpdateOrder,
-  createOrderSchema,
-  updateOrderSchema,
-} from "./schema";
+import { type CreateOrder, type UpdateOrder } from "./schema";
 import { type IOrderService } from "./interfaces/order.interface";
 import { NotFoundError, ValidationError } from "../utils/errors";
 import { usersService } from "../users/users.service";
@@ -20,15 +15,7 @@ export const ordersService: IOrderService = {
     let calculatedTotal = 0;
     let orderCurrency: PriceCurrency | null = null;
 
-    const {
-      success,
-      data: orderData,
-      error,
-    } = await createOrderSchema.safeParseAsync(data);
-
-    if (!success) throw new ValidationError(error.message);
-
-    const { lineItems, ...rest } = orderData;
+    const { lineItems, ...rest } = data;
 
     const user = await usersService.get(userId);
     if (!user) throw new NotFoundError(MESSAGES.USER.NOT_FOUND);
@@ -77,19 +64,11 @@ export const ordersService: IOrderService = {
     return orders;
   },
   update: async (id: string, data: UpdateOrder) => {
-    const {
-      success,
-      data: orderData,
-      error,
-    } = await updateOrderSchema.safeParseAsync(data);
-    if (!success) {
-      throw new ValidationError(error.message);
-    }
     const existingOrder = await ordersService.get(id);
     if (!existingOrder) {
       throw new ValidationError(MESSAGES.ORDER.NOT_FOUND);
     }
-    const { status } = orderData;
+    const { status } = data;
 
     const order = await prisma.order.update({
       where: { id },

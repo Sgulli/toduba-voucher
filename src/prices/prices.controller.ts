@@ -19,14 +19,16 @@ export const pricesController: IController = {
     res.status(HTTP_STATUS.OK).jsonp(apiResponse);
   },
   create: async (req, res, next) => {
-    const { error, data } = await tryCatch(pricesService.create(req.body));
+    const { error, data } = await tryCatch(
+      pricesService.create(req.validated.body)
+    );
     if (error) return next(new ServerError(error.message));
     const apiResponse = Response.success(data);
     res.status(HTTP_STATUS.CREATED).jsonp(apiResponse);
   },
   update: async (req, res, next) => {
     const { error, data } = await tryCatch(
-      pricesService.update(req.params.id, req.body)
+      pricesService.update(req.params.id, req.validated.body)
     );
     if (error) return next(new ServerError(error.message));
     const apiResponse = Response.success(data);

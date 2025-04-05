@@ -1,4 +1,4 @@
-import { type SignInSchema, type SignUpSchema, signUpSchema } from "./schema";
+import { type SignInSchema, type SignUpSchema } from "./schema";
 import { usersService } from "../users/users.service";
 import { compare } from "bcrypt";
 import { sign } from "jsonwebtoken";

@@ -238,6 +238,32 @@ The application follows a modular architecture with the following key components
     }
     ```
 
+#### Get Orders
+
+- **Endpoint**: `GET /api/v1/orders/:userId`
+- **Headers**:
+  - `Authorization: Bearer <jwt-token>`
+- **Response**:
+  - **200 OK**:
+    ```json
+    {
+      "success": true,
+      "message": "ok",
+      "data": [
+        {
+          "id": "order-id",
+          "status": "NEW",
+          "total": 100.0,
+          "currency": "EUR",
+          "code": "ORD-ABC123",
+          "userId": "user-id",
+          "createdAt": "2023-01-01T00:00:00.000Z",
+          "updatedAt": "2023-01-01T00:00:00.000Z"
+        }
+      ]
+    }
+    ```
+
 ---
 
 ### Assets

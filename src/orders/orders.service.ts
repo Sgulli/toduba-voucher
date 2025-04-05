@@ -43,15 +43,22 @@ export const ordersService: IOrderService = {
     if (cached) return cached;
     const order = await prisma.order.findUniqueOrThrow({
       where: { id },
+      include: {
+        lineItems: true,
+      },
     });
     await kv.set(kvKeyFn("orders", order.id), order);
     return order;
   },
-  getAll: async () => {
+  getAll: async (userId: string) => {
     const cached = await kv.get<Order[]>(kvKeyFn("orders"));
     if (cached && cached.length > 0) return cached;
     const orders = await prisma.order.findMany({
+      where: { userId },
       orderBy: { createdAt: "desc" },
+      include: {
+        lineItems: true,
+      },
     });
     await kv.set(kvKeyFn("orders"), orders);
     return orders;

@@ -528,7 +528,7 @@ openssl rand -base64 32
 
    ```bash
    git clone <repository-url>
-   cd ivoucher
+   cd toduba-voucher
    ```
 
 2. Install dependencies:

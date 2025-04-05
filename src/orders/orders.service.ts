@@ -1,4 +1,4 @@
-import { type Order, OrderStatus, PriceCurrency } from "@prisma/client";
+import { type Order, OrderStatus } from "@prisma/client";
 import { prisma } from "../db/prisma";
 import { type CreateOrder, type UpdateOrder } from "./schema";
 import { type IOrderService } from "./interfaces/order.interface";
@@ -12,28 +12,21 @@ import { kvKeyFn } from "../utils/kv-key-fn";
 
 export const ordersService: IOrderService = {
   create: async (userId: string, data: CreateOrder) => {
-    let calculatedTotal = 0;
-    let orderCurrency: PriceCurrency | null = null;
-
     const { lineItems, ...rest } = data;
 
     const user = await usersService.get(userId);
     if (!user) throw new NotFoundError(MESSAGES.USER.NOT_FOUND);
 
-    if (!lineItems.length)
-      throw new ValidationError(MESSAGES.LINE_ITEM.REQUIRED);
-
-    const lineItemsData = await createLineItemsData(
-      lineItems,
-      calculatedTotal,
-      orderCurrency
+    const lineItemsData = await createLineItemsData(lineItems);
+    const total = lineItemsData.reduce(
+      (acc, lineItem) => acc + lineItem.amount,
+      0
     );
 
     const order = await prisma.order.create({
       data: {
         ...rest,
-        total: calculatedTotal,
-        currency: rest.currency,
+        total,
         userId,
         status: OrderStatus.NEW,
         code: ordersService.generateCode(),

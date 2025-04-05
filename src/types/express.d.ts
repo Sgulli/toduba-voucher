@@ -5,5 +5,9 @@ namespace Express {
       query?: any;
       params?: any;
     };
+    user: User & {
+      id: string;
+      email: string;
+    };
   }
 }

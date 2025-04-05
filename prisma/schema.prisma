@@ -46,7 +46,7 @@ model Price {
   amount     Float
   currency  PriceCurrency
   product   Product?  @relation(fields: [productId], references: [id])
-  productId String? @unique  
+  productId String?   
   isActive Boolean @default(true)
 
 

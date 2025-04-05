@@ -20,7 +20,7 @@ export const pricesController: IController = {
   },
   create: async (req, res, next) => {
     const { error, data } = await tryCatch(
-      pricesService.create(req.validated.body)
+      pricesService.create(req.params.productId, req.validated.body)
     );
     if (error) return next(new ServerError(error.message));
     const apiResponse = Response.success(data);
@@ -28,7 +28,11 @@ export const pricesController: IController = {
   },
   update: async (req, res, next) => {
     const { error, data } = await tryCatch(
-      pricesService.update(req.params.id, req.validated.body)
+      pricesService.update(
+        req.params.id,
+        req.params.productId,
+        req.validated.body
+      )
     );
     if (error) return next(new ServerError(error.message));
     const apiResponse = Response.success(data);

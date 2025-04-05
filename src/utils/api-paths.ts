@@ -25,14 +25,14 @@ export const API_PATHS = {
   PRICES: {
     GET: "/prices/:id",
     GET_ALL: "/prices",
-    CREATE: "/prices",
-    UPDATE: "/prices/:id",
+    CREATE: "/prices/:productId",
+    UPDATE: "/prices/:id/product/:productId",
     DELETE: "/prices/:id",
   },
   ORDERS: {
     GET: "/orders/:id",
-    GET_ALL: "/orders/:userId",
-    CREATE: "/orders/:userId",
+    GET_ALL: "/orders",
+    CREATE: "/orders",
     UPDATE: "/orders/:id",
     DELETE: "/orders/:id",
   },

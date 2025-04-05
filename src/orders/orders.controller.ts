@@ -22,7 +22,7 @@ export const ordersController: IController = {
   },
   create: async (req, res, next) => {
     const { error, data } = await tryCatch(
-      ordersService.create(req.params.userId, req.validated.body)
+      ordersService.create(req.user?.id, req.validated.body)
     );
     if (error) return next(new ServerError(error.message));
     const apiResponse = Response.success(data);
@@ -30,7 +30,7 @@ export const ordersController: IController = {
   },
   update: async (req, res, next) => {
     const { error, data } = await tryCatch(
-      ordersService.update(req.params.id, req.validated.body)
+      ordersService.update(req.user?.id, req.validated.body)
     );
     if (error) return next(new ServerError(error.message));
     const apiResponse = Response.success(data);

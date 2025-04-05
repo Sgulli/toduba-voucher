@@ -12,8 +12,9 @@ export const priceSchema = z.object({
 
 export const createPriceSchema = z.object({
   amount: z.number().positive(),
-  currency: z.enum([PriceCurrency.EUR, PriceCurrency.USD]),
-  productId: z.string().nullable().optional(),
+  currency: z
+    .enum([PriceCurrency.EUR, PriceCurrency.USD])
+    .default(PriceCurrency.EUR),
 });
 
 export const priceParamsSchema = z.object({
@@ -22,7 +23,11 @@ export const priceParamsSchema = z.object({
   }),
 });
 
-export const updatePriceSchema = createPriceSchema.partial();
+export const updatePriceSchema = createPriceSchema
+  .extend({
+    isActive: z.boolean(),
+  })
+  .partial();
 
 export type Price = z.infer<typeof priceSchema>;
 export type CreatePrice = z.infer<typeof createPriceSchema>;

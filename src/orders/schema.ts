@@ -34,12 +34,6 @@ export const orderSchema = z.object({
 });
 
 export const createOrderSchema = z.object({
-  quantity: z.number().min(1),
-  totalAmount: z.number().min(0),
-  currency: z
-    .enum([PriceCurrency.EUR, PriceCurrency.USD])
-    .default(PriceCurrency.EUR),
-  code: z.string(),
   lineItems: z.array(
     z.object({
       productId: z.string(),

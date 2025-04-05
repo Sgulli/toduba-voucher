@@ -9,16 +9,22 @@ import { kvKeyFn } from "../utils/kv-key-fn";
 import { productService } from "../products/products.service";
 
 export const pricesService: IPriceService = {
-  create: async (data: CreatePrice) => {
-    const { productId } = data;
-    if (productId) {
-      const existingProduct = await productService.get(productId);
-      if (!existingProduct) {
-        throw new NotFoundError(MESSAGES.PRODUCT.NOT_FOUND);
-      }
+  create: async (productId: string, data: CreatePrice) => {
+    const existingProduct = await productService.get(productId);
+    if (!existingProduct) {
+      throw new NotFoundError(MESSAGES.PRODUCT.NOT_FOUND);
     }
+
+    const existingPrice = await pricesService.getFirstActive(productId);
+
     const price = await prisma.price.create({
-      data,
+      data: {
+        ...data,
+        productId,
+        ...(existingPrice && {
+          isActive: false,
+        }),
+      },
     });
     await kv.del(kvKeyFn("prices"));
     return price;
@@ -43,21 +49,23 @@ export const pricesService: IPriceService = {
     await kv.set(kvKeyFn("prices", price.id), price);
     return price;
   },
-  update: async (id: string, data: UpdatePrice) => {
-    const { productId } = data;
+  update: async (id: string, productId: string, data: UpdatePrice) => {
     const existingPrice = await pricesService.get(id);
     if (!existingPrice) {
       throw new NotFoundError(MESSAGES.PRODUCT.NOT_FOUND);
     }
-    if (productId) {
-      const existingProduct = await productService.get(productId);
-      if (!existingProduct) {
-        throw new NotFoundError(MESSAGES.PRODUCT.NOT_FOUND);
-      }
+
+    const existingProduct = await productService.get(productId);
+    if (!existingProduct) {
+      throw new NotFoundError(MESSAGES.PRODUCT.NOT_FOUND);
     }
+
     const price = await prisma.price.update({
       where: { id },
-      data,
+      data: {
+        ...data,
+        productId,
+      },
     });
     await Promise.all([
       kv.set(kvKeyFn("prices", price.id), price),
@@ -68,6 +76,7 @@ export const pricesService: IPriceService = {
   },
   delete: async (id: string) => {
     const existingPrice = await pricesService.get(id);
+
     if (!existingPrice) {
       throw new NotFoundError(MESSAGES.PRODUCT.NOT_FOUND);
     }
@@ -82,20 +91,26 @@ export const pricesService: IPriceService = {
     return price;
   },
   getByProductId: async (productId: string, currency = PriceCurrency.EUR) => {
-    const existingProduct = await prisma.product.findUnique({
-      where: { id: productId },
-    });
+    const existingProduct = await productService.get(productId);
     if (!existingProduct) {
       throw new NotFoundError(MESSAGES.PRODUCT.NOT_FOUND);
     }
-    const price = await prisma.price.findFirstOrThrow({
+    const price = await prisma.price.findFirst({
       where: {
         productId,
         currency,
         isActive: true,
       },
     });
+    if (!price) return null;
     await kv.set(kvKeyFn("prices", price.id), price);
     return price;
+  },
+  getFirstActive: () => {
+    return prisma.price.findFirst({
+      where: {
+        isActive: true,
+      },
+    });
   },
 };

@@ -36,13 +36,11 @@ export const authService = {
   },
 
   signIn: async (data: SignInSchema) => {
-    const { email, password } = data;
+    const { email, password: psw } = data;
     const user = await usersService.getByEmail(email);
-    if (!user) {
-      throw new NotFoundError(MESSAGES.USER.NOT_FOUND);
-    }
+    if (!user) throw new NotFoundError(MESSAGES.USER.NOT_FOUND);
 
-    const isPasswordValid = await compare(password, user.password);
+    const isPasswordValid = await compare(psw, user.password);
     if (!isPasswordValid) {
       throw new ValidationError(MESSAGES.AUTH.INVALID_PASSWORD);
     }
@@ -58,6 +56,8 @@ export const authService = {
       getEnv().JWT_EXPIRES_IN
     );
 
-    return { user, token };
+    const { password, ...userWithoutPassword } = user;
+
+    return { userWithoutPassword, token };
   },
 };

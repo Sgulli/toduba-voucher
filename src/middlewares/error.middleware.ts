@@ -14,10 +14,10 @@ export const errorHandler = (
     const apiError = ApiResponse.error(
       err.message,
       err.statusCode,
-      err.cause as string
+      err.cause as string | undefined
     );
 
-    res.status(err.statusCode).json(apiError.message);
+    res.status(err.statusCode).json(apiError);
     next(apiError.message);
     return;
   }

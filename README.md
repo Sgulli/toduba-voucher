@@ -533,9 +533,19 @@ openssl rand -base64 32
 
 2. Install dependencies:
 
-   ```bash
-   npm install
-   ```
+```bash
+# Install dependencies using npm
+npm install
+
+# Or using yarn
+yarn install
+
+# Or using pnpm
+pnpm install
+
+# Or using bun
+bun install
+```
 
 3. Set up environment variables:
 
@@ -555,10 +565,10 @@ openssl rand -base64 32
 
 ## Docker Setup
 
-1. Build and start the containers:
+1. Build and start the containers (in daemon mode):
 
    ```bash
-   docker-compose up --build
+   docker-compose up -b -d
    ```
 
 2. Access the application at `http://localhost:<PORT>`.

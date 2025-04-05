@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
+import { UnauthorizedError } from "./errors";
 import passport from "passport";
 import consts from "./consts";
-import { UnauthorizedError } from "./errors";
 
 const { passportAuthKey } = consts;
 

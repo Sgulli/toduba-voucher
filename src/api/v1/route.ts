@@ -15,7 +15,7 @@ const router = express.Router();
 
 /* routes */
 router.use(basePath, authApi);
-router.use(basePath, userApi);
+router.use(basePath, useAuth(), userApi);
 router.use(basePath, useAuth(), productApi);
 router.use(basePath, useAuth(), orderApi);
 router.use(basePath, useAuth(), assetsApi);

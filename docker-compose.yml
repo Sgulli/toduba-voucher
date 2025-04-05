@@ -9,12 +9,38 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    networks:
+      - voucher_network
   redis:
     image: redis:latest
     container_name: redis_container
     restart: always
     ports:
       - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - voucher_network
+  toduba-voucher:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: toduba-voucher_container
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+      - redis
+    env_file:
+      - .env
+    networks:
+      - voucher_network
 
 volumes:
   mysql_data:
+  redis_data:
+
+networks:
+  voucher_network:
+    driver: bridge

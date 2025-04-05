@@ -11,5 +11,7 @@ namespace NodeJS {
     SUPABASE_URL: string;
     SUPABASE_API_KEY: string;
     BUCKET_NAME: string;
+    REDIS_HOST: string;
+    REDIS_PORT: string;
   }
 }

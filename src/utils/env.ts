@@ -12,6 +12,8 @@ const env = z.object({
   SUPABASE_URL: z.string(),
   SUPABASE_API_KEY: z.string(),
   BUCKET_NAME: z.string(),
+  REDIS_HOST: z.string(),
+  REDIS_PORT: z.string().transform((val) => parseInt(val, 10)),
 });
 
 export const getEnv = () => {

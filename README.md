@@ -641,19 +641,17 @@ The following errors are used throughout the application:
 
 ### Product Errors
 
-| Error Code | Error Message          |
-| ---------- | ---------------------- |
-| 404        | Product not found      |
-| 409        | Product already exists |
-| 400        | Invalid price          |
-| 400        | Invalid currency       |
+| Error Code | Error Message     |
+| ---------- | ----------------- |
+| 404        | Product not found |
+| 400        | Invalid price     |
+| 400        | Invalid currency  |
 
 ### Order Errors
 
 | Error Code | Error Message        |
 | ---------- | -------------------- |
 | 404        | Order not found      |
-| 409        | Order already exists |
 | 400        | Invalid order status |
 | 400        | Invalid quantity     |
 | 400        | Invalid line item    |
@@ -665,7 +663,6 @@ The following errors are used throughout the application:
 | Error Code | Error Message                  |
 | ---------- | ------------------------------ |
 | 404        | Price not found                |
-| 409        | Price already exists           |
 | 400        | Invalid amount                 |
 | 400        | Invalid currency               |
 | 400        | Price and product do not match |

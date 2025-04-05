@@ -7,6 +7,7 @@ import authApi from "../../auth/auth.route";
 import assetsApi from "../../assets/assets.route";
 import pricesApi from "../../prices/prices.route";
 import consts from "../../utils/consts";
+import { useAuth } from "../../config";
 
 const { basePath } = consts;
 
@@ -14,10 +15,10 @@ const router = express.Router();
 
 /* routes */
 router.use(basePath, userApi);
-router.use(basePath, productApi);
-router.use(basePath, orderApi);
+router.use(basePath, useAuth(), productApi);
+router.use(basePath, useAuth(), orderApi);
 router.use(basePath, authApi);
-router.use(basePath, assetsApi);
-router.use(basePath, pricesApi);
+router.use(basePath, useAuth(), assetsApi);
+router.use(basePath, useAuth(), pricesApi);
 
 export default router;

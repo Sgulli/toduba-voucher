@@ -17,6 +17,9 @@ export const usersService: IUsersService = {
     }
     const user = await prisma.user.create({
       data,
+      omit: {
+        password: true,
+      },
     });
     await kv.del(kvKeyFn("users"));
     return user;
@@ -24,7 +27,11 @@ export const usersService: IUsersService = {
   getAll: async () => {
     const cached = await kv.get<User[]>(kvKeyFn("users"));
     if (cached && cached.length > 0) return cached;
-    const users = await prisma.user.findMany();
+    const users = await prisma.user.findMany({
+      omit: {
+        password: true,
+      },
+    });
     await kv.set(kvKeyFn("users"), users);
     return users;
   },
@@ -35,6 +42,9 @@ export const usersService: IUsersService = {
       where: {
         id,
       },
+      omit: {
+        password: true,
+      },
     });
     await kv.set(kvKeyFn("users", user.id), user);
     return user;
@@ -42,11 +52,12 @@ export const usersService: IUsersService = {
   getByEmail: async (email: string) => {
     const cached = await kv.get<User>(kvKeyFn("users", email));
     if (cached) return cached;
-    const user = await prisma.user.findUniqueOrThrow({
+    const user = await prisma.user.findUnique({
       where: {
         email,
       },
     });
+    if (!user) return null;
     await kv.set(kvKeyFn("users", user.email), user);
     return user;
   },
@@ -64,6 +75,9 @@ export const usersService: IUsersService = {
         id,
       },
       data,
+      omit: {
+        password: true,
+      },
     });
     await Promise.all([
       kv.set(kvKeyFn("users", user.id), user),
@@ -78,6 +92,9 @@ export const usersService: IUsersService = {
     const user = await prisma.user.delete({
       where: {
         id,
+      },
+      omit: {
+        password: true,
       },
     });
 

@@ -18,7 +18,8 @@ function generateToken<T extends object>(
 
 export const authService = {
   signUp: async (data: SignUpSchema) => {
-    const user = await usersService.create(data);
+    const { confirmPassword, ...rest } = data;
+    const user = await usersService.create(rest);
 
     const payload = {
       id: user.id,

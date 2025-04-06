@@ -5,7 +5,7 @@ export class ValidationError extends Error {
   constructor(message: string) {
     super(message.trim());
     this.name = "ValidationError";
-    this.statusCode = HTTP_STATUS.BAD_GATEWAY;
+    this.statusCode = HTTP_STATUS.BAD_REQUEST;
   }
 }
 

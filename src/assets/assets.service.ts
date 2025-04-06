@@ -33,7 +33,7 @@ export const assetsService: IAssetsService = {
     if (!product) throw new ValidationError(MESSAGES.PRODUCT.NOT_FOUND);
     const asset = await prisma.asset.create({
       data: {
-        name: "test",
+        name: fileName ?? "file",
         path: data?.path,
         productId,
         alt: alt ?? "",

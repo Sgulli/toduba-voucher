@@ -22,7 +22,4 @@ RUN npm ci --only=production --omit=dev
 # Expose the port the app runs on (based on env configuration)
 EXPOSE 8080
 
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-USER appuser
- 
 CMD ["npm", "run", "start:prod"]

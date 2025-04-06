@@ -592,8 +592,9 @@ Before running Prisma migrations, ensure the database user has the necessary pri
    Run the following SQL commands to grant privileges. Replace `<DATABASE_NAME>`, `<DATABASE_USER>`, and `<DATABASE_PASSWORD>` with the appropriate values:
 
    ```sql
-   CREATE USER '<DATABASE_USER>'@'%' IDENTIFIED BY '<DATABASE_PASSWORD>';
-   GRANT ALL PRIVILEGES ON <DATABASE_NAME>.* TO '<DATABASE_USER>'@'%';
+   CREATE USER IF NOT EXIST '<DATABASE_USER>'@'%' IDENTIFIED BY '<DATABASE_PASSWORD>';
+   GRANT ALL PRIVILEGES ON <DATABASE_NAME>.* TO '<DATABASE_USER>'@'%' WITH GRANT OPTION;
+   GRANT ALL ON *.* TO '<DATABASE_USER>'@'%';
    FLUSH PRIVILEGES;
    ```
 

@@ -37,7 +37,7 @@ export const createOrderSchema = z.object({
   lineItems: z.array(
     z.object({
       productId: z.string(),
-      quantity: z.number().min(1),
+      quantity: z.number().min(1).max(100),
     })
   ),
 });

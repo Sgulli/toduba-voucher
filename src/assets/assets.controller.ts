@@ -12,9 +12,9 @@ export const assetsController: IAssetsController = {
     res.status(HTTP_STATUS.OK).jsonp(apiResponse);
   },
   upload: async (req, res, next) => {
-    const { alt } = req.validated.body;
+    const { alt } = req.validated?.body ?? {};
     const { error, data } = await tryCatch(
-      assetsService.upload(req.params.userId, alt, req.file)
+      assetsService.upload(req.params.productId, alt, req.file)
     );
     if (error) return next(error);
     const apiResponse = Response.success(data);

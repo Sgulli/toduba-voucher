@@ -5,22 +5,24 @@ import { getEnv } from "../utils/env";
 import { ServerError, ValidationError } from "../utils/errors";
 import { MESSAGES } from "../utils/message";
 import { type IAssetsService } from "./interfaces/assets-service.interface";
+import { type FileData } from "./types/file-data.type";
 
 export const assetsService: IAssetsService = {
   bucket: getEnv().BUCKET_NAME,
 
   upload: async (
     productId: string,
-    alt?: string,
+    fileData?: FileData,
     file?: Express.Multer.File
   ) => {
     if (!file) throw new ValidationError(MESSAGES.ASSETS.FILE_REQUIRED);
 
     const { buffer, mimetype } = file;
+    const { alt, fileName } = fileData ?? {};
 
     const { data, error } = await supabase.storage
       .from(assetsService.bucket)
-      .upload("test", buffer, {
+      .upload(fileName ?? "file", buffer, {
         contentType: mimetype,
         upsert: true,
       });

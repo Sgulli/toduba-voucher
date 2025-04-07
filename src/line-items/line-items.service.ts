@@ -18,7 +18,7 @@ export const lineItemService: ILineItemService = {
     const lineItem = await prisma.lineItem.findUniqueOrThrow({
       where: { id },
     });
-    await kv.set(kvKeyFn("line-items", lineItem.id), lineItem);
+    await kv.set(kvKeyFn("line-items"), lineItem);
     return lineItem;
   },
   getAll: async ({ orderId }: { orderId: string }) => {

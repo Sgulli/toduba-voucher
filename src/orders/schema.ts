@@ -52,7 +52,7 @@ export const updateOrderSchema = z
   })
   .partial();
 
-export const GetOrderSchema = z.object({
+export const getOrderSchema = z.object({
   params: z.object({
     id: z.string(),
   }),
@@ -62,6 +62,12 @@ export const OrderUserIdSchema = z.object({
   params: z.object({
     userId: z.string(),
   }),
+});
+
+export const orderPaginateSchema = z.object({
+  userId: z.string().optional(),
+  page: z.coerce.number().min(1).default(1),
+  limit: z.coerce.number().min(1).max(100).default(10),
 });
 
 export type Order = z.infer<typeof orderSchema>;

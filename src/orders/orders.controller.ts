@@ -7,7 +7,11 @@ import { ordersService } from "./orders.service";
 export const ordersController: IController = {
   getAll: async (req, res, next) => {
     const { error, data } = await tryCatch(
-      ordersService.getAll(req.params.userId)
+      ordersService.paginate(
+        req.validated.query.userId,
+        req.validated.query.page,
+        req.validated.query.limit
+      )
     );
     if (error) return next(error);
     const apiResponse = Response.success(data);

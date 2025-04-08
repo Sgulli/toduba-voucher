@@ -63,6 +63,23 @@ export const ordersService: IOrderService = {
     await kv.set(kvKeyFn("orders"), orders);
     return orders;
   },
+  paginate: async (userId: string, page: number, limit: number) => {
+    return prisma.order.paginate({
+      pagination: {
+        limit,
+        page,
+      },
+      where: {
+        userId,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        lineItems: true,
+      },
+    });
+  },
   update: async (id: string, data: UpdateOrder) => {
     const existingOrder = await ordersService.get(id);
     if (!existingOrder) {

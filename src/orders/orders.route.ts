@@ -2,11 +2,19 @@ import express from "express";
 import { API_PATHS } from "../utils/api-paths";
 import { ordersController } from "./orders.controller";
 import { validate } from "../middlewares/validate.middleware";
-import { createOrderSchema, updateOrderSchema } from "./schema";
+import {
+  createOrderSchema,
+  orderPaginateSchema,
+  updateOrderSchema,
+} from "./schema";
 
 const router = express.Router();
 
-router.get(API_PATHS.ORDERS.GET_ALL, ordersController.getAll);
+router.get(
+  API_PATHS.ORDERS.GET_ALL,
+  validate(orderPaginateSchema, "query"),
+  ordersController.getAll
+);
 
 router.get(API_PATHS.ORDERS.GET, ordersController.get);
 

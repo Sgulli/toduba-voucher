@@ -6,11 +6,11 @@ type Targets = "body" | "query" | "params";
 
 export const validate =
   (schema: AnyZodObject, target: Targets = "body") =>
-  async (req: Request, res: Response, next: NextFunction) => {
-    const { success, data, error } = await schema.safeParseAsync(req[target]);
+  (req: Request, res: Response, next: NextFunction) => {
+    const { success, data, error } = schema.safeParse(req[target]);
     if (!success) {
       const validationError = new ValidationError(error.message);
-      req.log.error({ name: "Server" }, validationError.message);
+      req.log.error({ name: "Server" }, error.message);
       res.status(validationError.statusCode).json(validationError);
       return;
     }

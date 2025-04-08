@@ -7,7 +7,10 @@ export const routeHitHandler: RequestHandler = (req, _, next) => {
   req.log.info({ name: "Server" }, `${method} ${originalUrl}`);
 
   if (requestWithBody.has(method) && Object.keys(body).length) {
-    req.log.info({ name: "Server" }, `Body: ${JSON.stringify(req.body)}`);
+    req.log.info(
+      { name: "Server" },
+      `Request Body: ${JSON.stringify(req.body)}`
+    );
   }
   next();
 };

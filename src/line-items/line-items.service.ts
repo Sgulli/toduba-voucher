@@ -60,7 +60,7 @@ export const lineItemService: ILineItemService = {
       where: { orderId },
     });
     if (!lineItem) return null;
-    await kv.set(kvKeyFn("line-items"), lineItem);
+    await kv.set(kvKeyFn("line-items", lineItem.id), lineItem);
     return lineItem;
   },
 };

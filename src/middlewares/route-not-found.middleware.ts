@@ -1,16 +1,11 @@
-import { Request, Response, NextFunction } from "express";
+import { RequestHandler } from "express";
 import { NotFoundError } from "../utils/errors";
 
-export const notFoundHandler = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const notFoundHandler: RequestHandler = (req, res, next) => {
   const notFoundError = new NotFoundError(`
     ${req.method} ${req.originalUrl} not found`);
-
+  req.log.error({ name: "Server" }, notFoundError.message);
   res.status(notFoundError.statusCode).json({
     error: notFoundError.message,
   });
-  next(notFoundError);
 };

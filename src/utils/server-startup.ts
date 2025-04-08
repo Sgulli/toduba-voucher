@@ -3,6 +3,6 @@ import { getEnv } from "./env";
 
 const { PORT, HOST } = getEnv();
 
-export function serverStartupLog() {
+export function serverStartup() {
   logger.info({ name: "Server" }, `Running on http://${HOST}:${PORT}`);
 }

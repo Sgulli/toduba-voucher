@@ -5,7 +5,7 @@ import { httpLogger, passport } from "./config";
 import { getEnv } from "./utils/env";
 import { notFoundHandler, errorHandler } from "./middlewares";
 import { routeHitHandler } from "./middlewares/route-hit.middleware";
-import { serverStartupLog } from "./utils/server-log";
+import { serverStartup } from "./utils/server-startup";
 
 const { PORT } = getEnv();
 
@@ -21,4 +21,4 @@ app.use(api);
 
 app.use(errorHandler);
 app.use(notFoundHandler);
-app.listen(PORT, serverStartupLog);
+app.listen(PORT, serverStartup);

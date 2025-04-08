@@ -2,7 +2,7 @@ import { RequestHandler } from "express";
 
 const requestWithBody = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 
-export const routeHitHandler: RequestHandler = (req, res, next) => {
+export const routeHitHandler: RequestHandler = (req, _, next) => {
   const { method, originalUrl, body } = req;
   req.log.info({ name: "Server" }, `${method} ${originalUrl}`);
 

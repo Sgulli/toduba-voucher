@@ -59,6 +59,7 @@ export const lineItemService: ILineItemService = {
     const lineItem = await prisma.lineItem.findFirst({
       where: { orderId },
     });
+    if (!lineItem) return null;
     await kv.set(kvKeyFn("line-items"), lineItem);
     return lineItem;
   },

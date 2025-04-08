@@ -1,4 +1,6 @@
 import { Prisma } from "@prisma/client";
+import { logger } from "../../config";
+import { z } from "zod";
 
 // Define a clear interface for pagination options
 export interface PaginationOptions {
@@ -63,12 +65,12 @@ export const paginateExtension = Prisma.defineExtension({
         // Validate and parse the page number, defaulting to 1
         let currentPage = 1;
         if (pagination?.page) {
-          const pageNum = Number(pagination.page);
+          const pageNum = parseInt(pagination.page, 10);
           // Ensure page is a positive integer
-          if (Number.isInteger(pageNum) && pageNum > 0) {
+          if (!isNaN(pageNum) && Number.isInteger(pageNum) && pageNum > 0) {
             currentPage = pageNum;
           } else {
-            console.warn(
+            logger.warn(
               `Invalid page number "${pagination.page}" provided. Defaulting to 1.`
             );
           }
@@ -79,10 +81,10 @@ export const paginateExtension = Prisma.defineExtension({
         if (pagination?.pageSize) {
           const pageSizeNum = Number(pagination.pageSize);
           // Ensure pageSize is a positive integer
-          if (Number.isInteger(pageSizeNum) && pageSizeNum > 0) {
+          if (z.number().min(1).safeParse(pageSizeNum).success) {
             pageSize = pageSizeNum;
           } else {
-            console.warn(
+            logger.warn(
               `Invalid page size "${pagination.pageSize}" provided. Defaulting to 12.`
             );
           }

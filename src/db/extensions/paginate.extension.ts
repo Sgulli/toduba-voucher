@@ -36,6 +36,8 @@ export interface PaginatedResult<T> {
   meta: PaginationMeta;
 }
 
+const isNumberSchema = z.number().min(1);
+
 export const paginateExtension = Prisma.defineExtension({
   model: {
     $allModels: {
@@ -67,7 +69,7 @@ export const paginateExtension = Prisma.defineExtension({
         if (pagination?.page) {
           const pageNum = parseInt(pagination.page, 10);
           // Ensure page is a positive integer
-          if (!isNaN(pageNum) && Number.isInteger(pageNum) && pageNum > 0) {
+          if (isNumberSchema.safeParse(pageNum).success) {
             currentPage = pageNum;
           } else {
             logger.warn(
@@ -81,7 +83,7 @@ export const paginateExtension = Prisma.defineExtension({
         if (pagination?.pageSize) {
           const pageSizeNum = Number(pagination.pageSize);
           // Ensure pageSize is a positive integer
-          if (z.number().min(1).safeParse(pageSizeNum).success) {
+          if (isNumberSchema.safeParse(pageSizeNum).success) {
             pageSize = pageSizeNum;
           } else {
             logger.warn(

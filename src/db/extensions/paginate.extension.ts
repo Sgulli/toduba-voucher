@@ -1,61 +1,126 @@
 import { Prisma } from "@prisma/client";
 
-type PaginationOptions = {
-  page?: number;
-  limit?: number;
-};
+// Define a clear interface for pagination options
+export interface PaginationOptions {
+  /**
+   * The page number to retrieve.
+   * @default 1
+   */
+  page?: number | string;
+  /**
+   * The number of items per page.
+   * @default 12
+   */
+  pageSize?: number | string;
+}
 
-type PaginationMetaResult = {
-  page: number;
+// Define a clear interface for the pagination metadata
+export interface PaginationMeta {
+  /** The current page number. */
+  currentPage: number;
+  /** The number of items per page. */
   pageSize: number;
-  pageCount: number;
-  total: number;
-};
+  /** The total number of pages. */
+  totalPages: number;
+  /** The total number of items across all pages. */
+  totalCount: number;
+}
+
+// Define a clear interface for the paginated result
+export interface PaginatedResult<T> {
+  /** The data for the current page. */
+  data: T[];
+  /** The pagination metadata. */
+  meta: PaginationMeta;
+}
 
 export const paginateExtension = Prisma.defineExtension({
   model: {
     $allModels: {
+      /**
+       * Paginates the query results for any model.
+       * @template T The model type (e.g., User, Post).
+       * @template A The arguments type for the findMany operation.
+       * @param this The Prisma model context.
+       * @param args The arguments for the findMany operation, including optional pagination options.
+       * @returns A Promise resolving to an object containing the paginated data and metadata.
+       */
       async paginate<T, A>(
         this: T,
-        args?:
-          | (Prisma.Exact<A, Prisma.Args<T, "findMany">> & {
-              pagination?: PaginationOptions;
-            })
-          | undefined
-      ): Promise<(Prisma.Result<T, A, "findMany"> | PaginationMetaResult)[]> {
+        args?: Prisma.Exact<A, Prisma.Args<T, "findMany">> & {
+          pagination?: PaginationOptions;
+        }
+      ): Promise<PaginatedResult<Prisma.Result<T, A, "findMany">[number]>> {
+        // Return PaginatedResult<ModelType>
+        // Type assertion for context (`this`) to access model methods
+        const context = Prisma.getExtensionContext(this);
+
+        // Destructure arguments, providing default empty object if args is undefined
         const { pagination, ...operationArgs } = (args ?? {}) as any;
 
-        // Calculate the page.
-        const page = args?.pagination?.page ? Number(args.pagination.page) : 1;
+        // --- Input Validation and Defaulting ---
 
-        // Calculate the pageSize.
-        const pageSize = args?.pagination?.page
-          ? Number(args.pagination.page)
-          : 12;
+        // Validate and parse the page number, defaulting to 1
+        let currentPage = 1;
+        if (pagination?.page) {
+          const pageNum = Number(pagination.page);
+          // Ensure page is a positive integer
+          if (Number.isInteger(pageNum) && pageNum > 0) {
+            currentPage = pageNum;
+          } else {
+            console.warn(
+              `Invalid page number "${pagination.page}" provided. Defaulting to 1.`
+            );
+          }
+        }
 
-        // Calculate the skip.
-        const skip = page > 1 ? pageSize * (page - 1) : 0;
+        // Validate and parse the page size, defaulting to 12
+        let pageSize = 12;
+        if (pagination?.pageSize) {
+          const pageSizeNum = Number(pagination.pageSize);
+          // Ensure pageSize is a positive integer
+          if (Number.isInteger(pageSizeNum) && pageSizeNum > 0) {
+            pageSize = pageSizeNum;
+          } else {
+            console.warn(
+              `Invalid page size "${pagination.pageSize}" provided. Defaulting to 12.`
+            );
+          }
+        }
 
-        // Run two operations in parallel and get results.
-        const [data, total]: [Prisma.Result<T, A, "findMany">, number] =
-          await Promise.all([
-            (this as any).findMany({
-              ...operationArgs,
-              skip,
-              take: pageSize,
-            }),
-            (this as any).count({ where: operationArgs?.where }),
-          ]);
+        // Calculate the number of records to skip
+        const skip = (currentPage - 1) * pageSize;
 
-        return [
-          data,
-          {
-            page,
+        // --- Database Operations ---
+
+        // Perform count and findMany operations in parallel for efficiency
+        const [totalCount, data] = await Promise.all([
+          // Count the total number of records matching the where clause
+          (context as any).count({ where: operationArgs?.where }),
+          // Retrieve the data for the current page
+          (context as any).findMany({
+            ...operationArgs,
+            skip: skip,
+            take: pageSize,
+          }),
+        ]);
+
+        // --- Result Calculation ---
+
+        // Calculate the total number of pages
+        const totalPages = Math.ceil(totalCount / pageSize);
+
+        // --- Return Paginated Result ---
+        return {
+          data, // The records for the current page
+          meta: {
+            // Pagination metadata
+            currentPage,
             pageSize,
-            pageCount: Math.ceil(total / pageSize),
-            total,
+            totalPages,
+            totalCount,
           },
-        ];
+        };
       },
     },
   },

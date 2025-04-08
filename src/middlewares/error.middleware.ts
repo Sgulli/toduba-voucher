@@ -1,37 +1,8 @@
 import { ErrorRequestHandler } from "express";
-import { MESSAGES } from "../utils/message";
-import { Response as ApiResponse } from "../utils/response";
 import { HTTP_STATUS } from "../utils/http-status";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { handleError } from "../utils/handle-error";
 
-export const errorHandler: ErrorRequestHandler = (err, req, res, _) => {
-  if ("statusCode" in err) {
-    const apiError = ApiResponse.error(
-      err.message,
-      err.statusCode,
-      err.cause as string | undefined
-    );
-    req.log.error({ name: "Server" }, err.message);
-    res.status(err.statusCode).json(apiError);
-    return;
-  }
-
-  if (err instanceof PrismaClientKnownRequestError) {
-    const apiError = ApiResponse.error(
-      err.message,
-      HTTP_STATUS.BAD_REQUEST,
-      err.cause as string | undefined
-    );
-    req.log.error({ name: "Server" }, err.message);
-    res.status(HTTP_STATUS.BAD_REQUEST).json(apiError);
-    return;
-  }
-
-  const apiError = ApiResponse.error(
-    MESSAGES.SERVER.INTERNAL_ERROR,
-    HTTP_STATUS.INTERNAL_SERVER_ERROR,
-    err.cause as string | undefined
-  );
-  req.log.error({ name: "Server" }, err.message);
+export const errorHandler: ErrorRequestHandler = (err, _, res, __) => {
+  const apiError = handleError(err);
   res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json(apiError);
 };
